@@ -10,13 +10,12 @@ using RealTick.Api.Domain;
 using RealTick.Api.Domain.Intraday;
 using System.Diagnostics;
 using RealTick.Api.Domain.Order;
+using System.IO;
 
 namespace ValMarRealTickAPI
 {
     class Program
-    {
-        // the sample code expects the symbol to be in a variable or constant called "_symbol"  
-       
+    {  
         static void Main(string[] args)
         {
             Console.WriteLine("VALMARAPI STARTING");
@@ -32,8 +31,23 @@ namespace ValMarRealTickAPI
                     RunIntraBar(app);
                     Variables.currentStock().printTopTradeVol();
                     Variables.currentStock().setInitialized();
+                    //3 second delay was needed otherwise we were getting no data returned everyonce in a while
+                    System.Threading.Thread.Sleep(3000);
                 }
-                
+                Task[] myTasks = new Task[Variables.stocks.Length];
+                for (int i = 0; i < Variables.stocks.Length; i++)
+                {
+                    WriteLine("!i is {0}", i);
+                    myTasks[i] = Task.Run(() =>
+                    {
+                        WriteLine("i is {0}", i);
+                        Form1 form = new Form1(app, i);
+                        form.ShowDialog();
+                    });
+                    // I had to add this 3 second wait otherwise i was coming in at 3 with an out of bounds exception
+                    System.Threading.Thread.Sleep(10000);
+                }
+
                 while (true)
                 {
                     for(int i = 0; i< Variables.stocks.Length; i++)
@@ -51,14 +65,39 @@ namespace ValMarRealTickAPI
                         
                         if(Variables.currentStock().shouldBuy())
                         {
-                            Helper.writeToFile("Purchasing " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
-                            Variables.currentStock().orderSent();
+                            writeToFile("Purchasing " + Variables.currentStock().name + " at " + DateTime.Now.ToString());                          
                             RunPlaceOrder(app);
-                        }                      
+                        }
+                        if (Variables.currentStock().shouldSell())
+                        {
+                            writeToFile("Selling " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
+                            RunPlaceOrder(app);
+                        }
                     }
                     System.Threading.Thread.Sleep(5000);
                 } 
             }         
+        }
+
+        public static void writeToFile(string newLine)
+        {
+            string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string path = Path.Combine(folder, "valmarapi.log");
+            if (!File.Exists(path))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    sw.WriteLine(newLine);
+                }
+            }
+
+            // This text is always added, making the file longer over time
+            // if it is not deleted.
+            using (StreamWriter sw = File.AppendText(path))
+            {
+                sw.WriteLine(newLine);
+            }
         }
 
         //We have to single thread the data we get.  The symbol allows that to happen.
@@ -69,12 +108,6 @@ namespace ValMarRealTickAPI
             Console.WriteLine(fmt, args);
         }
 
-        // the sample code uses a method called "WaitAny" -- we can map this to WaitHandle.WaitOne()  
- /*       static bool WaitAny(int timeout, WaitHandle handle)
-        {
-            handle.WaitOne(timeout);
-            return true;
-        } */
         private static bool WaitForIntervalOrError(int millisecondsTimeout, params System.Threading.WaitHandle[] errorConditionHandles)
         {
             // We are basically just calling System.Threading.WaitHandle.WaitAny on the handle(s) provided,
@@ -270,7 +303,9 @@ namespace ValMarRealTickAPI
             {
                 //Removed because DisplayOrder is not showing up for this context
                 //DisplayOrder(ord);
+                WriteLine("=====================================================");
                 WriteLine("Type: {0} Status: {1}", ord.Type, ord.CurrentStatus);
+                WriteLine("=====================================================");
                 if (ord.Type == "UserSubmitOrder")
                 {
                     if (ord.CurrentStatus == "COMPLETED" || ord.CurrentStatus == "DELETED")
@@ -280,20 +315,40 @@ namespace ValMarRealTickAPI
                     if (ord.CurrentStatus == "DELETED")
                     {
                         WriteLine("Purchase failed user submit deleted for {0}", ord.DispName);
-                        Helper.writeToFile("Purchase failed user submit deleted for " + ord.DispName + " at " + DateTime.Now.ToString());
+                        writeToFile("Purchase failed user submit deleted for " + ord.DispName + " at " + DateTime.Now.ToString());
+                        Variables.currentStock().soldStock();
                     }
                 }
 
                 if (ord.Type == "ExchangeTradeOrder")
                 {
-                    //Purchase successful 
+                    //Trade successful 
+                    try
+                    {
+                        Variables.currentStock().highPrice = Convert.ToDouble(ord.Price.ToString());
+                    }
+                    catch (FormatException)
+                    {
+                        writeToFile("Unable to convert to double selling stock");
+                        WriteLine("Unable to convert to double selling stock {0}", ord.DispName);
+                        Variables.currentStock().setSell();
+                    }
                     WriteLine("GOT FILL FOR {0} {1} AT {2} for {3}", ord.Buyorsell, ord.Volume, ord.Price, ord.DispName);
-                    Helper.writeToFile("Purchase complete for: " + ord.DispName + " at " + DateTime.Now.ToString());
+                    writeToFile(ord.Buyorsell + " complete for: " + ord.DispName + " for " + ord.Volume + " at $" + ord.Price + " " + DateTime.Now.ToString());
                 }
                 if (ord.Type == "ExchangeKillOrder")
                 {
                     WriteLine("GOT KILL");
-                    Helper.writeToFile("Purchase failed transaction killed " + ord.DispName + " at " + DateTime.Now.ToString());
+                    writeToFile("Transaction failed transaction killed " + ord.DispName + " at " + DateTime.Now.ToString());
+                    if(ord.Buyorsell == "SELL")
+                    {
+                        //Sell failed try to sell again
+                        Variables.currentStock().setSell();
+                    } else
+                    {
+                        //Purchase failed
+                        Variables.currentStock().soldStock();
+                    }
                 }
             }
             _event.Set();
@@ -319,15 +374,19 @@ namespace ValMarRealTickAPI
             // We send a market order, to maximize the chance that we will
             // successfully get a fill as desired for this example.
             var bld = new OrderBuilder(cache);
-            bld.SetAccount(null, "TEST", null, null);
+            //bld.SetAccount(null, "TEST", null, null);
+            bld.SetAccount("LATEST", "TEST", "01", "CATALYST");
             //This will determine if we are selling or buying stock
             if (Variables.currentStock().shouldBuy())
             {
-                bld.SetBuySell(OrderBuilder.BuySell.SELL);
+                bld.SetBuySell(OrderBuilder.BuySell.BUY);
+                Variables.currentStock().buySent();
             }
             else
             {
-                bld.SetBuySell(OrderBuilder.BuySell.BUY);
+                bld.SetBuySell(OrderBuilder.BuySell.SELL);
+                Variables.currentStock().sellSent();
+                Variables.currentStock().soldStock();
             }
             bld.SetExpiration(OrderBuilder.Expiration.DAY);
             bld.SetRoute(Variables.route);
@@ -335,9 +394,6 @@ namespace ValMarRealTickAPI
             bld.SetPriceMarket();
             bld.SetVolume(Variables.currentStock().getVolumesToTrade());
             cache.SubmitOrder(bld);
-
-            //Let stock know that it should not attempt to purchase anymore volumes.
-            Variables.currentStock().orderSent();
 
             _state = State.OrderInPlay;
             _event.Set();

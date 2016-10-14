@@ -9,25 +9,9 @@ namespace ValMarRealTickAPI
 {
     public static class Helper
     {
-        public static void writeToFile(string newLine)
+        public static void WriteLine(string fmt, params object[] args)
         {
-            string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string path = Path.Combine(folder, "valmarapi.log");
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    sw.WriteLine(newLine);
-                }
-            }
-
-            // This text is always added, making the file longer over time
-            // if it is not deleted.
-            using (StreamWriter sw = File.AppendText(path))
-            {
-                sw.WriteLine(newLine);
-            }
+            Console.WriteLine(fmt, args);
         }
     }
 }

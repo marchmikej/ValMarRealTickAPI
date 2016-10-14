@@ -12,12 +12,13 @@ namespace ValMarRealTickAPI
         public string exchange;
         private int volumesPurchased;
         private int volumesToTrade;
-        public double purchasePrice;
+        public double highPrice;
         private List<int> topTradeVolume;
         private int lowTradeVolIndex;
         private bool initialized;
         private DateTime purchaseTime;
-        private bool buy;
+        private bool buy;  //When buy is true then the main program will purchase the stock
+        private bool sell;  //When sell is true then the main program will sell the stock
 
         public Stock(string name, string exchange, int volumesToPurchase)
         {
@@ -29,6 +30,8 @@ namespace ValMarRealTickAPI
             volumesPurchased = 0;
             this.volumesToTrade = volumesToPurchase;
             buy = false;
+            sell = false;
+            highPrice = 0;
         }
 
         // When true the stock has had it's history checked and the volume at which to trade should be set
@@ -94,6 +97,7 @@ namespace ValMarRealTickAPI
             }
         }
 
+        //If this is false then sell stock immediately
         public bool stockTimeOK()
         {
             if( (DateTime.Now - purchaseTime).TotalSeconds > Variables.maxSecondsToHold)
@@ -103,16 +107,22 @@ namespace ValMarRealTickAPI
             return true;
         }
 
-        public void orderSent()
+        public void buySent()
         {
             buy = false;
             volumesPurchased = volumesToTrade;
             purchaseTime = DateTime.Now;
         }
 
+        public void sellSent()
+        {
+            sell = false;
+        }
+
         public void soldStock()
         {
             volumesPurchased = 0;
+            highPrice = 0;
         }
 
         public int getVolumesToTrade()
@@ -137,6 +147,51 @@ namespace ValMarRealTickAPI
         public bool shouldBuy()
         {
             return buy;
+        }
+
+        public void setSell()
+        {
+            sell = true;
+        }
+
+        public bool shouldSell()
+        {
+            if(stockHeld())
+            {
+                //Checks if we have exceeded hold time
+                if ((DateTime.Now - purchaseTime).TotalSeconds > Variables.maxSecondsToHold)
+                {
+                    sell = true;
+                }
+                return sell;
+            }
+            return false;
+        }
+
+        public void newPrice(double newTradePrice)
+        {
+            //If stock price goes up that is our new high water mark
+            if(newTradePrice > highPrice)
+            {
+                highPrice = newTradePrice;
+            } else
+            {
+                //If price of stock dips below stop gap percentage then sell
+                if(getCurrentStopGapPrice() > newTradePrice)
+                {
+                    sell = true;
+                }
+            }
+        }
+
+        public double getCurrentStopGapPrice()
+        {
+            return highPrice - (highPrice * Variables.stopGap);
+        }
+
+        public int getVolumesPurchased()
+        {
+            return volumesPurchased;
         }
     }
 }
