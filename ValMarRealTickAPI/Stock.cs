@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,10 +18,19 @@ namespace ValMarRealTickAPI
         private int lowTradeVolIndex;
         private bool initialized;
         private DateTime purchaseTime;
+        private List<Trade> recentTrades;
         private bool buy;  //When buy is true then the main program will purchase the stock
         private bool sell;  //When sell is true then the main program will sell the stock
+        public int tradesPerWeek;
+        public int weeksLookBack;
+        public double maxSecondsToHold;
+        public double stopGap;
+        public int recentTradesToKeep;
+        public bool showTrades;
+        public bool showBids;
 
-        public Stock(string name, string exchange, int volumesToPurchase)
+
+        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep)
         {
             this.name = name;
             this.exchange = exchange;
@@ -32,6 +42,53 @@ namespace ValMarRealTickAPI
             buy = false;
             sell = false;
             highPrice = 0;
+            recentTrades = new List<Trade>();
+            showBids = false;
+            showTrades = false;
+
+            this.tradesPerWeek = tradesPerWeek;
+            this.weeksLookBack = weeksLookBack;
+            this.maxSecondsToHold = maxSecondsToHold;
+            this.stopGap = stopGap;
+            this.recentTradesToKeep = recentTradesToKeep;
+
+            writeToFile("New Stock Created");
+        }
+
+        public void writeToFile(string newLine)
+        {
+            string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string path = Path.Combine(folder, name + ".log");
+            newLine = DateTime.Now + " " + newLine;
+            if (!File.Exists(path))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    sw.WriteLine(newLine);
+                }
+            }
+
+            // This text is always added, making the file longer over time
+            // if it is not deleted.
+            using (StreamWriter sw = File.AppendText(path))
+            {
+                sw.WriteLine(newLine);
+            }
+        }
+
+        public void addTrade(Trade newTrade)
+        {
+            if(recentTrades.Count > Variables.currentStock().recentTradesToKeep)
+            {
+                recentTrades.RemoveAt(0);
+            }
+            recentTrades.Add(newTrade);
+        }
+
+        public List<Trade> getRecentTrades()
+        {
+            return recentTrades;
         }
 
         // When true the stock has had it's history checked and the volume at which to trade should be set
@@ -48,7 +105,7 @@ namespace ValMarRealTickAPI
         // Adds volume to topTradeVolumeList if it is one of the top volumes
         public void addVolumeToList(int volumeChange)
         {
-            if (topTradeVolume.Count < Variables.tradesPerWeek * Variables.weeksLookBack)
+            if (topTradeVolume.Count < Variables.currentStock().tradesPerWeek * Variables.currentStock().weeksLookBack)
             {
                 topTradeVolume.Add(volumeChange);
                 getLowTradeIndex(true);  //Update lowTradeVol;
@@ -100,7 +157,7 @@ namespace ValMarRealTickAPI
         //If this is false then sell stock immediately
         public bool stockTimeOK()
         {
-            if( (DateTime.Now - purchaseTime).TotalSeconds > Variables.maxSecondsToHold)
+            if( (DateTime.Now - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
             {
                 return false;
             }
@@ -139,9 +196,18 @@ namespace ValMarRealTickAPI
             return false;
         }
 
-        public void setBuy()
+        public bool setBuy()
         {
-            buy = true;
+            if(recentTrades.Count < Variables.currentStock().recentTradesToKeep)
+            {
+                return buy;
+            } else if(recentTrades[0].amount < recentTrades[Variables.currentStock().recentTradesToKeep-1].amount)
+            {
+                buy = true;
+                writeToFile("Buying Stock");
+                writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+            }
+            return buy;
         }
         
         public bool shouldBuy()
@@ -152,6 +218,8 @@ namespace ValMarRealTickAPI
         public void setSell()
         {
             sell = true;
+            writeToFile("Selling Stock");
+            writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
         }
 
         public bool shouldSell()
@@ -159,9 +227,11 @@ namespace ValMarRealTickAPI
             if(stockHeld())
             {
                 //Checks if we have exceeded hold time
-                if ((DateTime.Now - purchaseTime).TotalSeconds > Variables.maxSecondsToHold)
+                if ((DateTime.Now - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
                 {
                     sell = true;
+                    writeToFile("Selling Stock");
+                    writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
                 }
                 return sell;
             }
@@ -180,13 +250,15 @@ namespace ValMarRealTickAPI
                 if(getCurrentStopGapPrice() > newTradePrice)
                 {
                     sell = true;
+                    writeToFile("Selling Stock");
+                    writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
                 }
             }
         }
 
         public double getCurrentStopGapPrice()
         {
-            return highPrice - (highPrice * Variables.stopGap);
+            return highPrice - (highPrice * Variables.currentStock().stopGap);
         }
 
         public int getVolumesPurchased()

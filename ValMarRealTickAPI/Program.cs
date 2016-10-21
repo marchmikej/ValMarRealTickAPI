@@ -24,6 +24,7 @@ namespace ValMarRealTickAPI
             {
                 //This portion of the program will initialize all of the stocks with data to analyze purchase 
                 //for the day.
+                /*
                 for (int i = 0; i < Variables.stocks.Length; i++)
                 {
                     Variables.currentStockIndex = i;
@@ -34,48 +35,60 @@ namespace ValMarRealTickAPI
                     //3 second delay was needed otherwise we were getting no data returned everyonce in a while
                     System.Threading.Thread.Sleep(3000);
                 }
-                Task[] myTasks = new Task[Variables.stocks.Length];
-                for (int i = 0; i < Variables.stocks.Length; i++)
+                */
+                // This will lauch the livetick for each stock to get realtime data
+                foreach (KeyValuePair<string, Stock> kvp in Variables.stocks)
                 {
-                    WriteLine("!i is {0}", i);
-                    myTasks[i] = Task.Run(() =>
+                    Task.Run(() =>
                     {
-                        WriteLine("i is {0}", i);
-                        Form1 form = new Form1(app, i);
+                        Form1 form = new Form1(app, kvp.Key);
                         form.ShowDialog();
                     });
                     // I had to add this 3 second wait otherwise i was coming in at 3 with an out of bounds exception
                     System.Threading.Thread.Sleep(10000);
                 }
+                Task.Run(() =>
+                {
+                    Watch_Stock watch_form = new Watch_Stock(app);
+                    watch_form.ShowDialog();
+                });
 
                 while (true)
                 {
-                    for(int i = 0; i< Variables.stocks.Length; i++)
+                    while (Variables.runTrades)
                     {
-                        Variables.currentStockIndex = i;
-                        Console.WriteLine("Evalulating: {0}", Variables.currentStock().name);  
-                        if(!Variables.currentStock().stockHeld())
+                        foreach (string item in Variables.stocks.Keys)
                         {
-                            RunIntraBar(app);
+                            Variables.currentStockIndex = item;
+                            Console.WriteLine("Evalulating: {0}", Variables.currentStock().name);
+                            if (!Variables.currentStock().isInitialized())
+                            {
+                                Task.Run(() =>
+                                {
+                                    Form1 form = new Form1(app, Variables.currentStockIndex);
+                                    form.ShowDialog();
+                                });
+                                System.Threading.Thread.Sleep(10000);
+                            }
+                            if (!Variables.currentStock().stockHeld())
+                            {
+                                RunIntraBar(app);
+                            }
+
+                            if (Variables.currentStock().shouldBuy())
+                            {
+                                writeToFile("Purchasing " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
+                                RunPlaceOrder(app);
+                            }
+                            if (Variables.currentStock().shouldSell())
+                            {
+                                writeToFile("Selling " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
+                                RunPlaceOrder(app);
+                            }
                         }
-                        else
-                        {
-                            //Check current stock price
-                        }
-                        
-                        if(Variables.currentStock().shouldBuy())
-                        {
-                            writeToFile("Purchasing " + Variables.currentStock().name + " at " + DateTime.Now.ToString());                          
-                            RunPlaceOrder(app);
-                        }
-                        if (Variables.currentStock().shouldSell())
-                        {
-                            writeToFile("Selling " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
-                            RunPlaceOrder(app);
-                        }
+                        System.Threading.Thread.Sleep(5000);
                     }
-                    System.Threading.Thread.Sleep(5000);
-                } 
+                }
             }         
         }
 
@@ -176,7 +189,7 @@ namespace ValMarRealTickAPI
                 //If not initialized then look back the specified number of weeks, otherwise only search today.
                 if (!Variables.currentStock().isInitialized())
                 {
-                    dayBackToSearch = Variables.weeksLookBack * 5;
+                    dayBackToSearch = Variables.currentStock().weeksLookBack * 5;
                 } 
             
                 table.WantData(table.TqlForIntradayBars(Variables.currentStock().name, minuteInterval, dayBackToSearch, false, null, null, null, null), true, false);
@@ -228,6 +241,10 @@ namespace ValMarRealTickAPI
                             Variables.currentStock().addVolumeToList(calculateVolumeChange(rec, i));
                         }
                     }
+                    Variables.currentStock().setInitialized();
+                    Variables.currentStock().printTopTradeVol();
+                    //3 second delay was needed otherwise we were getting no data returned everyonce in a while
+                    System.Threading.Thread.Sleep(3000);
                 }
                 else 
                 {
@@ -246,12 +263,19 @@ namespace ValMarRealTickAPI
                     WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
                     if (Variables.currentStock().getTradeVol() < totalVolumeChange)
                     {
-                        //Buy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        WriteLine("Purchase: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
                         //This sets the current stock to a buy status which will be executed above
                         //because I was unsure of the best way to pass app to the purchase method.
-                        Variables.currentStock().setBuy();
+                        if(Variables.currentStock().setBuy())
+                        {
+                            //Buy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            WriteLine("Purchase: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
+                        } else
+                        {
+                            WriteLine("No Purchase because stock is trending down: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
+                        }
                     }
+                    // Add this volume to list if in the top trade volumes
+                    Variables.currentStock().addVolumeToList(totalVolumeChange);
                 }
                 if (rec.Count >= max)
                     WriteLine("--- {0} MORE ROWS OMITTED --  ERROR IN PROCESSING", rec.Count - max);
@@ -326,6 +350,7 @@ namespace ValMarRealTickAPI
                     try
                     {
                         Variables.currentStock().highPrice = Convert.ToDouble(ord.Price.ToString());
+                        Variables.currentStock().writeToFile("Trade at " + Convert.ToDouble(ord.Price.ToString()));
                     }
                     catch (FormatException)
                     {

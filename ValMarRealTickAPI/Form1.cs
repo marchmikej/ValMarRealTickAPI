@@ -19,9 +19,9 @@ namespace ValMarRealTickAPI
     {
         ToolkitApp _app;
         LiveQuoteTable _table;
-        int stockIndex;
+        string stockIndex;
 
-        public Form1(ToolkitApp app, int stockIndex)
+        public Form1(ToolkitApp app, string stockIndex)
         {
             _app = app;
             this.stockIndex = stockIndex;
@@ -64,10 +64,23 @@ namespace ValMarRealTickAPI
         {
             foreach (LivequoteRecord rec in e)
             {
+                if (rec.Bid != null  && Variables.stocks[stockIndex].showBids)
+                    Log("BID {0} ASK {1} Vol{2} Price{3}", rec.Bid, rec.Ask, rec.SaleConditionVolume, rec.SaleConditionPrice);
                 if (rec.Trdprc1 != null)
                 {
-                    Log("{0} TRADE {1} VOLUME {2} TIME {3}", rec.DispName, rec.Trdprc1, rec.Trdvol1, rec.Trdtim1);
-                    Log("{0} TRADE PRICE {1}", rec.DispName, Convert.ToDouble(rec.Trdprc1.ToString()));
+                    if (Variables.stocks[stockIndex].showTrades)
+                    {
+                        Log("{0} TRADE {1} VOLUME {2} TIME {3}", rec.DispName, rec.Trdprc1, rec.Trdvol1, rec.Trdtim1);
+                    }
+                    try
+                    {
+                        Variables.stocks[stockIndex].addTrade(new Trade(DateTime.Now, Convert.ToInt32(rec.Trdvol1), Convert.ToDouble(rec.Trdprc1.ToString())));
+                    }
+                    catch (FormatException)
+                    {
+                        Helper.WriteLine("In FORM Unable to convertk {0}", Variables.stocks[stockIndex].name);
+                        Log("Unable to convert to proper format");
+                    }
                     if (Variables.stocks[stockIndex].stockHeld())
                     {
                         Helper.WriteLine("Form Watching {0} for sell price {1} with purchased vol {2} {3}.", Variables.stocks[stockIndex].name, Variables.stocks[stockIndex].getCurrentStopGapPrice(), Variables.stocks[stockIndex].getVolumesPurchased(), Variables.stocks[stockIndex].stockHeld());
@@ -87,9 +100,48 @@ namespace ValMarRealTickAPI
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+            Variables.stocks.Remove(stockIndex);
             _table.Dispose();
             _table = null;
             DialogResult = DialogResult.OK;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            List<Trade> recentTrades = Variables.stocks[stockIndex].getRecentTrades();
+            Log("Recent Trades");
+            for (int i = 0; i < recentTrades.Count; i++)
+            {
+                Log("Amount {0} Vol {1} Time{2}", recentTrades[i].amount, recentTrades[i].volume, recentTrades[i].time);
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (Variables.stocks[stockIndex].showTrades)
+            {
+                Variables.stocks[stockIndex].showTrades = false;
+                button3.Text = "Show Trades";
+            }
+            else
+            {
+                Variables.stocks[stockIndex].showTrades = true;
+                button3.Text = "Hide Trades";
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (Variables.stocks[stockIndex].showBids)
+            {
+                Variables.stocks[stockIndex].showBids = false;
+                button4.Text = "Show Bids";
+            }
+            else
+            {
+                Variables.stocks[stockIndex].showBids = true;
+                button4.Text = "Hide Bids";
+            }
         }
     }
 }

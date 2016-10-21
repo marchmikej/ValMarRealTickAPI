@@ -61,7 +61,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stock.cs" />
+    <Compile Include="Trade.cs" />
     <Compile Include="Variables.cs" />
+    <Compile Include="Watch Stock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Watch Stock.Designer.cs">
+      <DependentUpon>Watch Stock.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -69,6 +76,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Watch Stock.resx">
+      <DependentUpon>Watch Stock.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
