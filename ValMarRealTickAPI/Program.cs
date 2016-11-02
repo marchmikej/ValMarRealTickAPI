@@ -340,7 +340,7 @@ namespace ValMarRealTickAPI
                     {
                         WriteLine("Purchase failed user submit deleted for {0}", ord.DispName);
                         writeToFile("Purchase failed user submit deleted for " + ord.DispName + " at " + DateTime.Now.ToString());
-                        Variables.currentStock().soldStock();
+                        Variables.stocks[ord.DispName].soldStock();
                     }
                 }
 
@@ -349,14 +349,15 @@ namespace ValMarRealTickAPI
                     //Trade successful 
                     try
                     {
-                        Variables.currentStock().highPrice = Convert.ToDouble(ord.Price.ToString());
-                        Variables.currentStock().writeToFile("Trade at " + Convert.ToDouble(ord.Price.ToString()));
+                        Variables.stocks[ord.DispName].tradeComplete(ord.Buyorsell, Convert.ToInt32(ord.Volume.ToString()), Convert.ToDouble(ord.Price.ToString()));
+                        Variables.stocks[ord.DispName].highPrice = Convert.ToDouble(ord.Price.ToString());
+                        Variables.stocks[ord.DispName].writeToFile("Trade at " + Convert.ToDouble(ord.Price.ToString()));
                     }
                     catch (FormatException)
                     {
                         writeToFile("Unable to convert to double selling stock");
                         WriteLine("Unable to convert to double selling stock {0}", ord.DispName);
-                        Variables.currentStock().setSell();
+                        Variables.stocks[ord.DispName].setSell();
                     }
                     WriteLine("GOT FILL FOR {0} {1} AT {2} for {3}", ord.Buyorsell, ord.Volume, ord.Price, ord.DispName);
                     writeToFile(ord.Buyorsell + " complete for: " + ord.DispName + " for " + ord.Volume + " at $" + ord.Price + " " + DateTime.Now.ToString());
@@ -368,11 +369,11 @@ namespace ValMarRealTickAPI
                     if(ord.Buyorsell == "SELL")
                     {
                         //Sell failed try to sell again
-                        Variables.currentStock().setSell();
+                        Variables.stocks[ord.DispName].setSell();
                     } else
                     {
                         //Purchase failed
-                        Variables.currentStock().soldStock();
+                        Variables.stocks[ord.DispName].soldStock();
                     }
                 }
             }

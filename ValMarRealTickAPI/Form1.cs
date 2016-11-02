@@ -74,7 +74,8 @@ namespace ValMarRealTickAPI
                     }
                     try
                     {
-                        Variables.stocks[stockIndex].addTrade(new Trade(DateTime.Now, Convert.ToInt32(rec.Trdvol1), Convert.ToDouble(rec.Trdprc1.ToString())));
+                        DateTime tradeDate = new DateTime(rec.TrdDate.Value.Year, rec.TrdDate.Value.Month, rec.TrdDate.Value.Day, rec.Trdtim1.Value.Hours, rec.Trdtim1.Value.Minutes, rec.Trdtim1.Value.Seconds);
+                        Variables.stocks[stockIndex].addTrade(new Trade(tradeDate, Convert.ToInt32(rec.Trdvol1.ToString()), Convert.ToDouble(rec.Trdprc1.ToString())));
                     }
                     catch (FormatException)
                     {

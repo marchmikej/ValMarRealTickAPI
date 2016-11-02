@@ -29,7 +29,6 @@ namespace ValMarRealTickAPI
         public bool showTrades;
         public bool showBids;
 
-
         public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep)
         {
             this.name = name;
@@ -77,9 +76,32 @@ namespace ValMarRealTickAPI
             }
         }
 
+        public void writeToCSV(string action, int volume, double price, DateTime timeStamp)
+        {
+            string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string path = Path.Combine(folder, name + ".csv");
+            string newLine = DateTime.Now + "," + timeStamp + "," + action + "," + volume + "," + price;
+            if (!File.Exists(path))
+            {
+                // Create a file to write to.
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    sw.WriteLine(newLine);
+                }
+            }
+
+            // This text is always added, making the file longer over time
+            // if it is not deleted.
+            using (StreamWriter sw = File.AppendText(path))
+            {
+                sw.WriteLine(newLine);
+            }
+        }
+
         public void addTrade(Trade newTrade)
         {
-            if(recentTrades.Count > Variables.currentStock().recentTradesToKeep)
+            writeToCSV("TRADE", newTrade.volume, newTrade.amount, newTrade.time);
+            if(recentTrades.Count > recentTradesToKeep)
             {
                 recentTrades.RemoveAt(0);
             }
@@ -167,7 +189,7 @@ namespace ValMarRealTickAPI
         public void buySent()
         {
             buy = false;
-            volumesPurchased = volumesToTrade;
+            //volumesPurchased = volumesToTrade;
             purchaseTime = DateTime.Now;
         }
 
@@ -178,7 +200,7 @@ namespace ValMarRealTickAPI
 
         public void soldStock()
         {
-            volumesPurchased = 0;
+            //volumesPurchased = 0;
             highPrice = 0;
         }
 
@@ -198,18 +220,47 @@ namespace ValMarRealTickAPI
 
         public bool setBuy()
         {
-            if(recentTrades.Count < Variables.currentStock().recentTradesToKeep)
+            if (recentTrades.Count < Variables.currentStock().recentTradesToKeep)
             {
                 return buy;
             } else if(recentTrades[0].amount < recentTrades[Variables.currentStock().recentTradesToKeep-1].amount)
             {
                 buy = true;
+                writeToCSV("SETBUY", 0, 0, DateTime.Now);
                 writeToFile("Buying Stock");
                 writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+            } else
+            {
+                writeToCSV("NOBUYTRENDINGDOWN", 0, 0, DateTime.Now);
             }
             return buy;
         }
-        
+
+        public void tradeComplete(string buyOrSell, int volumeTraded, double pricedTraded)
+        {
+            writeToCSV("TRADECOMPLETE" + buyOrSell, volumeTraded, pricedTraded, DateTime.Now);
+            //volumesPurchased = volumesPurchased + volumeTraded;
+            if(buyOrSell=="Buy")
+            {
+                volumesPurchased = volumesPurchased + volumeTraded;
+            } else if(buyOrSell=="Sell")
+            {
+                volumesPurchased = volumesPurchased - volumeTraded;
+            }
+        }
+
+        public void buyComplete(string buyOrSell, int volumeTraded, double pricedTraded)
+        {
+            writeToCSV("BUY", volumeTraded, pricedTraded, DateTime.Now);
+            volumesPurchased = volumesPurchased + volumeTraded;
+        }
+
+        public void saleComplete(string buyOrSell, int volumeTraded, double pricedTraded)
+        {
+            writeToCSV("SELL", volumeTraded, pricedTraded, DateTime.Now);
+            volumesPurchased = volumesPurchased - volumeTraded;
+        }
+
         public bool shouldBuy()
         {
             return buy;
@@ -218,18 +269,20 @@ namespace ValMarRealTickAPI
         public void setSell()
         {
             sell = true;
+            writeToCSV("SETSELL", 0, 0, DateTime.Now);
             writeToFile("Selling Stock");
             writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
         }
 
         public bool shouldSell()
         {
-            if(stockHeld())
+            if(volumesPurchased == volumesToTrade)
             {
                 //Checks if we have exceeded hold time
                 if ((DateTime.Now - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
                 {
                     sell = true;
+                    writeToCSV("SETSELL", 0, 0, DateTime.Now);
                     writeToFile("Selling Stock");
                     writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
                 }
