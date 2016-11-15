@@ -69,6 +69,7 @@ namespace ValMarRealTickAPI
                     try
                     {
                         Variables.stocks[stockIndex].writeToCSV("BID", Convert.ToInt32(rec.SaleConditionVolume.ToString()), Convert.ToDouble(rec.Bid.ToString()), DateTime.Now);
+                        Variables.stocks[stockIndex].writeToCSV("ASK", Convert.ToInt32(rec.SaleConditionVolume.ToString()), Convert.ToDouble(rec.Ask.ToString()), DateTime.Now);
                     }
                     catch (FormatException)
                     {
