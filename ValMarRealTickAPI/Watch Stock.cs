@@ -51,6 +51,7 @@ namespace ValMarRealTickAPI
                 MessageBox.Show("Form not properly filled out.");
                 return;
             }
+            textSymbol.Text = "";
         }
 
         private void button2_Click(object sender, EventArgs e)

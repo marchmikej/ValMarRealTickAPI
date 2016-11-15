@@ -64,8 +64,21 @@ namespace ValMarRealTickAPI
         {
             foreach (LivequoteRecord rec in e)
             {
-                if (rec.Bid != null  && Variables.stocks[stockIndex].showBids)
-                    Log("BID {0} ASK {1} Vol{2} Price{3}", rec.Bid, rec.Ask, rec.SaleConditionVolume, rec.SaleConditionPrice);
+                if (rec.Bid != null)
+                {
+                    try
+                    {
+                        Variables.stocks[stockIndex].writeToCSV("BID", Convert.ToInt32(rec.SaleConditionVolume.ToString()), Convert.ToDouble(rec.Bid.ToString()), DateTime.Now);
+                    }
+                    catch (FormatException)
+                    {
+                        Helper.WriteLine("In FORM Unable to convertk {0}", Variables.stocks[stockIndex].name);
+                    }
+                    if (Variables.stocks[stockIndex].showBids)
+                    {
+                        Log("BID {0} ASK {1} Vol{2} Price{3}", rec.Bid, rec.Ask, rec.SaleConditionVolume, rec.SaleConditionPrice);
+                    }
+                }
                 if (rec.Trdprc1 != null)
                 {
                     if (Variables.stocks[stockIndex].showTrades)
