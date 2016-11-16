@@ -21,6 +21,8 @@ namespace ValMarRealTickAPI
         private List<Trade> recentTrades;
         private bool buy;  //When buy is true then the main program will purchase the stock
         private bool sell;  //When sell is true then the main program will sell the stock
+        private int trendDownSeconds;
+        private DateTime lastTrendDown;
         public int tradesPerWeek;
         public int weeksLookBack;
         public double maxSecondsToHold;
@@ -28,8 +30,9 @@ namespace ValMarRealTickAPI
         public int recentTradesToKeep;
         public bool showTrades;
         public bool showBids;
+        public int averageVolumeHistory;
 
-        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep)
+        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep, int trendDownSeconds)
         {
             this.name = name;
             this.exchange = exchange;
@@ -44,13 +47,15 @@ namespace ValMarRealTickAPI
             recentTrades = new List<Trade>();
             showBids = false;
             showTrades = false;
+            averageVolumeHistory = 0;
 
             this.tradesPerWeek = tradesPerWeek;
             this.weeksLookBack = weeksLookBack;
             this.maxSecondsToHold = maxSecondsToHold;
             this.stopGap = stopGap;
             this.recentTradesToKeep = recentTradesToKeep;
-
+            this.trendDownSeconds = trendDownSeconds;
+            lastTrendDown = DateTime.Now;
             writeToFile("New Stock Created");
         }
 
@@ -225,12 +230,21 @@ namespace ValMarRealTickAPI
                 return buy;
             } else if(recentTrades[0].amount < recentTrades[Variables.currentStock().recentTradesToKeep-1].amount)
             {
-                buy = true;
-                writeToCSV("SETBUY", 0, 0, DateTime.Now);
-                writeToFile("Buying Stock");
-                writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+                // Need to ensure that we are not still in the trending down period
+                // if yes then send message to the log
+                if ((DateTime.Now - lastTrendDown).TotalSeconds > trendDownSeconds)
+                {
+                    buy = true;
+                    writeToCSV("SETBUY", 0, 0, DateTime.Now);
+                    writeToFile("Buying Stock");
+                    writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+                } else
+                {
+                    writeToCSV("NOBUYINTRENDINGDOWNWAIT", 0, 0, DateTime.Now);
+                }
             } else
             {
+                lastTrendDown = DateTime.Now;
                 writeToCSV("NOBUYTRENDINGDOWN", 0, 0, DateTime.Now);
             }
             return buy;

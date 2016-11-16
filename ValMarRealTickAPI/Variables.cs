@@ -15,6 +15,7 @@ namespace ValMarRealTickAPI
         //public const int recentTradesToKeep = 10;
         public const string route = "DEMO";
         public static bool runTrades = false;
+        public static int barLookBack = 3;
 /*
         public static Stock[] stocks = new Stock[7] {
             new Stock("GWPH", "NAS", 100, 60, 2, 1200, .0008, 10),

@@ -46,6 +46,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.textMaxSecondsToHold = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textTrendDownSeconds = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -202,11 +204,30 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(557, 119);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(162, 20);
+            this.label9.TabIndex = 18;
+            this.label9.Text = "Trend Down Seconds";
+            // 
+            // textTrendDownSeconds
+            // 
+            this.textTrendDownSeconds.Location = new System.Drawing.Point(734, 114);
+            this.textTrendDownSeconds.Name = "textTrendDownSeconds";
+            this.textTrendDownSeconds.Size = new System.Drawing.Size(216, 26);
+            this.textTrendDownSeconds.TabIndex = 19;
+            this.textTrendDownSeconds.Text = "120";
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1324, 682);
+            this.Controls.Add(this.textTrendDownSeconds);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.textMaxSecondsToHold);
             this.Controls.Add(this.label8);
@@ -253,5 +274,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textMaxSecondsToHold;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox textTrendDownSeconds;
     }
 }

@@ -207,26 +207,45 @@ namespace ValMarRealTickAPI
             _evtGotData.Set();
         }
 
-        //Calculates volume change over 3 minute period
-        static int calculateVolumeChange(IntradayRecord rec, int i)
+        //Calculates volume change over X minute period
+        static int calculateVolumeChange(IntradayRecord rec, int startingRecord)
         {
+            //Removed for updated formula provided by John on 11/15/2016
+            /*
             int volumeChange1 = rec.AcVol1[i - 2] - rec.AcVol1[i - 3];
             int volumeChange2 = rec.AcVol1[i - 1] - rec.AcVol1[i - 2];
             int volumeChange3 = rec.AcVol1[i] - rec.AcVol1[i - 1];
             int totalVolumeChange = volumeChange1 + volumeChange2 + volumeChange3;
-            return totalVolumeChange;
+            return totalVolumeChange; */
+
+            int averageVolumeChange = 0;
+
+            for(int j=0;j<Variables.barLookBack;j++)
+            {
+                averageVolumeChange += rec.AcVol1[startingRecord - j];
+            }
+            return averageVolumeChange / Variables.barLookBack;
         }
 
         static void table_OnIntraday(object sender, DataEventArgs<IntradayRecord> e)
         {
-            int max = 5000;
             foreach (IntradayRecord rec in e)
             {
                 WriteLine("DATE\t\tTIME\t\tACVOL\tHIGH\tLOW\tOPEN");
 
                 if (!Variables.currentStock().isInitialized())
                 {
-                    for (int i = 0; i < rec.Count && i < max; i++)
+                    //Calculate average volume for the look back time
+                    // Added on 11/15/2016 for john's vol3 calculation
+                    int tempVolumeCount = 0;
+                    for (int i = 0; i < rec.Count; i++)
+                    {
+                        tempVolumeCount += rec.AcVol1[i];
+                    }
+                    Variables.currentStock().averageVolumeHistory = tempVolumeCount / rec.Count;
+
+                    //Calculate the top differences over the look back time
+                    for (int i = 0; i < rec.Count; i++)
                     {
                         WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                             rec.TrdDate[i].ToShortDateString(),
@@ -236,9 +255,10 @@ namespace ValMarRealTickAPI
                             rec.Low1[i],
                             rec.OpenPrc[i]);
                         //Calculate volume change over last 3 minutes and add to stocks list
-                        if (i > 2)
+                        if (i > Variables.barLookBack)
                         {
-                            Variables.currentStock().addVolumeToList(calculateVolumeChange(rec, i));
+                            // Updated on 11/15/2016 for john's vol3 calculation
+                            Variables.currentStock().addVolumeToList(calculateVolumeChange(rec, i) - Variables.currentStock().averageVolumeHistory);
                         }
                     }
                     Variables.currentStock().setInitialized();
@@ -258,7 +278,8 @@ namespace ValMarRealTickAPI
                         rec.Low1[i],
                         rec.OpenPrc[i]);
 
-                    int totalVolumeChange = calculateVolumeChange(rec, i);
+                    // Updated on 11/15/2016 for john's vol3 calculation
+                    int totalVolumeChange = calculateVolumeChange(rec, i)- Variables.currentStock().averageVolumeHistory;
 
                     Variables.currentStock().writeToCSV("VOLUMECHANGELAST3MIN", totalVolumeChange, Variables.currentStock().getTradeVol(), DateTime.Now);
                     WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
@@ -278,8 +299,6 @@ namespace ValMarRealTickAPI
                     // Add this volume to list if in the top trade volumes
                     Variables.currentStock().addVolumeToList(totalVolumeChange);
                 }
-                if (rec.Count >= max)
-                    WriteLine("--- {0} MORE ROWS OMITTED --  ERROR IN PROCESSING", rec.Count - max);
             }
             _evtGotData.Set();
         }
