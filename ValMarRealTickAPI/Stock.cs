@@ -22,7 +22,7 @@ namespace ValMarRealTickAPI
         private bool buy;  //When buy is true then the main program will purchase the stock
         private bool sell;  //When sell is true then the main program will sell the stock
         private int trendDownSeconds;
-        private DateTime lastTrendDown;
+        private DateTime lastTrendDownTime;
         public int tradesPerWeek;
         public int weeksLookBack;
         public double maxSecondsToHold;
@@ -31,8 +31,10 @@ namespace ValMarRealTickAPI
         public bool showTrades;
         public bool showBids;
         public int averageVolumeHistory;
+        private int waitAfterSellSeconds;
+        private DateTime lastSellTime;
 
-        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep, int trendDownSeconds)
+        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds)
         {
             this.name = name;
             this.exchange = exchange;
@@ -55,7 +57,10 @@ namespace ValMarRealTickAPI
             this.stopGap = stopGap;
             this.recentTradesToKeep = recentTradesToKeep;
             this.trendDownSeconds = trendDownSeconds;
-            lastTrendDown = DateTime.Now;
+            this.waitAfterSellSeconds = waitAfterSellSeconds;
+            // Initializing below times minus the buffer so they will not wait to buy at initial launch
+            lastSellTime = DateTime.Now.AddSeconds(waitAfterSellSeconds * -1);
+            lastTrendDownTime = DateTime.Now.AddSeconds(trendDownSeconds * -1); ;
             writeToFile("New Stock Created");
         }
 
@@ -201,6 +206,9 @@ namespace ValMarRealTickAPI
         public void sellSent()
         {
             sell = false;
+            // Added on 11/18/2016 so Adam could specify a buffer in between the last sell and the next 
+            // available buy.
+            lastSellTime = DateTime.Now;
         }
 
         public void soldStock()
@@ -232,19 +240,29 @@ namespace ValMarRealTickAPI
             {
                 // Need to ensure that we are not still in the trending down period
                 // if yes then send message to the log
-                if ((DateTime.Now - lastTrendDown).TotalSeconds > trendDownSeconds)
+                if ((DateTime.Now - lastTrendDownTime).TotalSeconds > trendDownSeconds)
                 {
-                    buy = true;
-                    writeToCSV("SETBUY", 0, 0, DateTime.Now);
-                    writeToFile("Buying Stock");
-                    writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+                    // Added on 11/19/2016 because Adam wanted a buffer to buy after the last sell
+                    // To many times we would sell and then buy again at to quick a time
+                    // He wanted to be able to add a buffer
+                    if ((DateTime.Now - lastSellTime).TotalSeconds > waitAfterSellSeconds)
+                    {
+                        buy = true;
+                        writeToCSV("SETBUY", 0, 0, DateTime.Now);
+                        writeToFile("Buying Stock");
+                        writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+                    }
+                    else
+                    {
+                        writeToCSV("NOBUYINWAITAFTERLASTSELL", 0, 0, DateTime.Now);
+                    }
                 } else
                 {
                     writeToCSV("NOBUYINTRENDINGDOWNWAIT", 0, 0, DateTime.Now);
                 }
             } else
             {
-                lastTrendDown = DateTime.Now;
+                lastTrendDownTime = DateTime.Now;
                 writeToCSV("NOBUYTRENDINGDOWN", 0, 0, DateTime.Now);
             }
             return buy;

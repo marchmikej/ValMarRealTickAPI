@@ -232,7 +232,11 @@ namespace ValMarRealTickAPI
             foreach (IntradayRecord rec in e)
             {
                 WriteLine("DATE\t\tTIME\t\tACVOL\tHIGH\tLOW\tOPEN");
-
+                // Skip this evaluation if rec.Count == 0 no data was returned
+                if (rec.Count == 0)
+                {
+                    continue;
+                }
                 if (!Variables.currentStock().isInitialized())
                 {
                     //Calculate average volume for the look back time

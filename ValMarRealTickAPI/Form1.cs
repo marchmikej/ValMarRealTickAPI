@@ -73,7 +73,7 @@ namespace ValMarRealTickAPI
                     }
                     catch (FormatException)
                     {
-                        Helper.WriteLine("In FORM Unable to convertk {0}", Variables.stocks[stockIndex].name);
+                        Helper.WriteLine("In FORM Unable to convert BID {0}", Variables.stocks[stockIndex].name);
                     }
                     if (Variables.stocks[stockIndex].showBids)
                     {
@@ -93,7 +93,7 @@ namespace ValMarRealTickAPI
                     }
                     catch (FormatException)
                     {
-                        Helper.WriteLine("In FORM Unable to convertk {0}", Variables.stocks[stockIndex].name);
+                        Helper.WriteLine("In FORM Unable to convert trade {0}", Variables.stocks[stockIndex].name);
                         Log("Unable to convert to proper format");
                     }
                     if (Variables.stocks[stockIndex].stockHeld())

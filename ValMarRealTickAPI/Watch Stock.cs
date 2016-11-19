@@ -43,12 +43,16 @@ namespace ValMarRealTickAPI
                 return;
             } else if (textTrendDownSeconds.Text == "")
             {
-                MessageBox.Show("Please stock trend down in seconds");
+                MessageBox.Show("Please enter stock trend down in seconds");
+                return;
+            } else if (textWaitAfterSellSeconds.Text == "")
+            {
+                MessageBox.Show("Please enter seconds to wait after sell");
                 return;
             }
             try
             {
-                Variables.stocks.Add(textSymbol.Text, new Stock(textSymbol.Text, textStockExchange.Text, Convert.ToInt32(textVolumesToPurchase.Text), Convert.ToInt32(textTradesPerWeek.Text), Convert.ToInt32(textWeeksLookBack.Text), Convert.ToInt32(textMaxSecondsToHold.Text), Convert.ToDouble(textStopGap.Text), Convert.ToInt32(textRecentTradesForPrice.Text), Convert.ToInt32(textTrendDownSeconds.Text)));
+                Variables.stocks.Add(textSymbol.Text, new Stock(textSymbol.Text, textStockExchange.Text, Convert.ToInt32(textVolumesToPurchase.Text), Convert.ToInt32(textTradesPerWeek.Text), Convert.ToInt32(textWeeksLookBack.Text), Convert.ToInt32(textMaxSecondsToHold.Text), Convert.ToDouble(textStopGap.Text), Convert.ToInt32(textRecentTradesForPrice.Text), Convert.ToInt32(textTrendDownSeconds.Text), Convert.ToInt32(textWaitAfterSellSeconds.Text)));
             }
             catch (FormatException)
             {
