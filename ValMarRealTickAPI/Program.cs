@@ -60,6 +60,7 @@ namespace ValMarRealTickAPI
                         foreach (string item in Variables.stocks.Keys)
                         {
                             Variables.currentStockIndex = item;
+                            Variables.currentStock().printToCSV();
                             Console.WriteLine("Evalulating: {0}", Variables.currentStock().name);
                             if (!Variables.currentStock().isInitialized())
                             {
@@ -69,6 +70,9 @@ namespace ValMarRealTickAPI
                                     form.ShowDialog();
                                 });
                                 System.Threading.Thread.Sleep(10000);
+                                RunIntraBar(app);
+                                System.Threading.Thread.Sleep(10000);
+
                             }
                             if (!Variables.currentStock().stockHeld())
                             {
@@ -251,6 +255,7 @@ namespace ValMarRealTickAPI
                     //Calculate the top differences over the look back time
                     for (int i = 0; i < rec.Count; i++)
                     {
+                        /*
                         WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                             rec.TrdDate[i].ToShortDateString(),
                             rec.TrdTim1[i],
@@ -258,6 +263,7 @@ namespace ValMarRealTickAPI
                             rec.High1[i],
                             rec.Low1[i],
                             rec.OpenPrc[i]);
+                            */
                         //Calculate volume change over last 3 minutes and add to stocks list
                         if (i > Variables.barLookBack)
                         {

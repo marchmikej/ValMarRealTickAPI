@@ -52,7 +52,7 @@ namespace ValMarRealTickAPI
 
         void _table_OnLive(object sender, EventArgs e)
         {
-            Log("CONNECTED OK");
+            Log("CONNECTED OK " + stockIndex);
         }
 
         void _table_OnDead(object sender, EventArgs e)
@@ -68,8 +68,8 @@ namespace ValMarRealTickAPI
                 {
                     try
                     {
-                        Variables.stocks[stockIndex].writeToCSV("BID", Convert.ToInt32(rec.SaleConditionVolume.ToString()), Convert.ToDouble(rec.Bid.ToString()), DateTime.Now);
-                        Variables.stocks[stockIndex].writeToCSV("ASK", Convert.ToInt32(rec.SaleConditionVolume.ToString()), Convert.ToDouble(rec.Ask.ToString()), DateTime.Now);
+                        Variables.stocks[stockIndex].writeToCSV("BID", 0, Convert.ToDouble(rec.Bid.ToString()), DateTime.Now);
+                        Variables.stocks[stockIndex].writeToCSV("ASK", 0, Convert.ToDouble(rec.Ask.ToString()), DateTime.Now);
                     }
                     catch (FormatException)
                     {
@@ -95,6 +95,11 @@ namespace ValMarRealTickAPI
                     {
                         Helper.WriteLine("In FORM Unable to convert trade {0}", Variables.stocks[stockIndex].name);
                         Log("Unable to convert to proper format");
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        Helper.WriteLine("In FORM Unable to convert trade {0}", Variables.stocks[stockIndex].name);
+                        Helper.WriteLine("TRADE WAS IGNORED!!!!!!!!!!!!!!");
                     }
                     if (Variables.stocks[stockIndex].stockHeld())
                     {

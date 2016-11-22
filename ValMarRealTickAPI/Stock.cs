@@ -33,6 +33,8 @@ namespace ValMarRealTickAPI
         public int averageVolumeHistory;
         private int waitAfterSellSeconds;
         private DateTime lastSellTime;
+        private Queue<CSVLine> csvLines;
+        private DateTime lastWriteCSV;
 
         public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds)
         {
@@ -62,10 +64,14 @@ namespace ValMarRealTickAPI
             lastSellTime = DateTime.Now.AddSeconds(waitAfterSellSeconds * -1);
             lastTrendDownTime = DateTime.Now.AddSeconds(trendDownSeconds * -1); ;
             writeToFile("New Stock Created");
+            csvLines = new Queue<CSVLine>();
+            lastWriteCSV = DateTime.Now;
         }
 
         public void writeToFile(string newLine)
         {
+            //Removed writing to file on 11/21/2016 no one is using this log at the moment.
+            /*
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string path = Path.Combine(folder, name + ".log");
             newLine = DateTime.Now + " " + newLine;
@@ -84,27 +90,41 @@ namespace ValMarRealTickAPI
             {
                 sw.WriteLine(newLine);
             }
+            */
         }
 
         public void writeToCSV(string action, int volume, double price, DateTime timeStamp)
         {
+            csvLines.Enqueue(new CSVLine(action, volume, price, timeStamp));
+        }
+
+        public void printToCSV()
+        {
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string path = Path.Combine(folder, name + ".csv");
-            string newLine = DateTime.Now + "," + timeStamp + "," + action + "," + volume + "," + price;
-            if (!File.Exists(path))
-            {
-                // Create a file to write to.
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    sw.WriteLine(newLine);
-                }
-            }
 
-            // This text is always added, making the file longer over time
-            // if it is not deleted.
-            using (StreamWriter sw = File.AppendText(path))
-            {
-                sw.WriteLine(newLine);
+            if ((DateTime.Now - lastWriteCSV).TotalSeconds > 60) {
+                lastWriteCSV = DateTime.Now;
+                Helper.WriteLine(name + " should print");
+                if (!File.Exists(path))
+                {
+                    // Create a file to write to.
+                    using (StreamWriter sw = File.CreateText(path))
+                    {
+                        sw.WriteLine("timestamp, timegiven, action, volume, price");
+                    }
+                }
+
+                // This text is always added, making the file longer over time
+                // if it is not deleted.
+                using (StreamWriter sw = File.AppendText(path))
+                {
+                    while (csvLines.Count > 0)
+                    {
+                        CSVLine newLine = csvLines.Dequeue();
+                        sw.WriteLine(newLine.currentTime + "," + newLine.timeStamp + "," + newLine.action + "," + newLine.volume + "," + newLine.price);
+                    }
+                }
             }
         }
 
