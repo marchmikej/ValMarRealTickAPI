@@ -288,26 +288,30 @@ namespace ValMarRealTickAPI
                         rec.Low1[i],
                         rec.OpenPrc[i]);
 
-                    // Updated on 11/15/2016 for john's vol3 calculation
-                    int totalVolumeChange = calculateVolumeChange(rec, i)- Variables.currentStock().averageVolumeHistory;
-
-                    Variables.currentStock().writeToCSV("VOLUMECHANGELAST3MIN", totalVolumeChange, Variables.currentStock().getTradeVol(), DateTime.Now);
-                    WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
-                    if (Variables.currentStock().getTradeVol() < totalVolumeChange)
+                    if (i > Variables.barLookBack)
                     {
-                        //This sets the current stock to a buy status which will be executed above
-                        //because I was unsure of the best way to pass app to the purchase method.
-                        if(Variables.currentStock().setBuy())
+                        // Updated on 11/15/2016 for john's vol3 calculation
+                        int totalVolumeChange = calculateVolumeChange(rec, i) - Variables.currentStock().averageVolumeHistory;
+
+                        Variables.currentStock().writeToCSV("VOLUMECHANGELAST3MIN", totalVolumeChange, Variables.currentStock().getTradeVol(), DateTime.Now);
+                        WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
+                        if (Variables.currentStock().getTradeVol() < totalVolumeChange)
                         {
-                            //Buy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            WriteLine("Purchase: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
-                        } else
-                        {
-                            WriteLine("No Purchase because stock is trending down: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
+                            //This sets the current stock to a buy status which will be executed above
+                            //because I was unsure of the best way to pass app to the purchase method.
+                            if (Variables.currentStock().setBuy())
+                            {
+                                //Buy!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                WriteLine("Purchase: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
+                            }
+                            else
+                            {
+                                WriteLine("No Purchase because stock is trending down: {0} at {1} volume change!!!!", Variables.currentStock().name, totalVolumeChange);
+                            }
                         }
+                        // Add this volume to list if in the top trade volumes
+                        Variables.currentStock().addVolumeToList(totalVolumeChange);
                     }
-                    // Add this volume to list if in the top trade volumes
-                    Variables.currentStock().addVolumeToList(totalVolumeChange);
                 }
             }
             _evtGotData.Set();
