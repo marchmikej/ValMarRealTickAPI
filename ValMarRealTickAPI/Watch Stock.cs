@@ -55,7 +55,7 @@ namespace ValMarRealTickAPI
                 if (!Variables.stocks.ContainsKey(textSymbol.Text))
                 {
                     Helper.WriteLine("Added Stock: " + textSymbol.Text);
-                    Variables.stocks.Add(textSymbol.Text, new Stock(textSymbol.Text, textStockExchange.Text, Convert.ToInt32(textVolumesToPurchase.Text), Convert.ToInt32(textTradesPerWeek.Text), Convert.ToInt32(textWeeksLookBack.Text), Convert.ToInt32(textMaxSecondsToHold.Text), Convert.ToDouble(textStopGap.Text), Convert.ToInt32(textRecentTradesForPrice.Text), Convert.ToInt32(textTrendDownSeconds.Text), Convert.ToInt32(textWaitAfterSellSeconds.Text)));
+                    Variables.stocks.Add(textSymbol.Text, new Stock(textSymbol.Text, textStockExchange.Text, Convert.ToInt32(textVolumesToPurchase.Text), Convert.ToInt32(textTradesPerWeek.Text), Convert.ToInt32(textWeeksLookBack.Text), Convert.ToInt32(textMaxSecondsToHold.Text), Convert.ToDouble(textStopGap1.Text), Convert.ToDouble(textStopGap2.Text), Convert.ToInt32(textSecondsStopGap1.Text), Convert.ToInt32(textRecentTradesForPrice.Text), Convert.ToInt32(textTrendDownSeconds.Text), Convert.ToInt32(textWaitAfterSellSeconds.Text)));
                 } else
                 {
                     Helper.WriteLine("Stock has already been added no duplicates allowed: " + textSymbol.Text);

@@ -26,7 +26,9 @@ namespace ValMarRealTickAPI
         public int tradesPerWeek;
         public int weeksLookBack;
         public double maxSecondsToHold;
-        public double stopGap;
+        private double stopGap1;
+        private double stopGap2;
+        private int secondsStopGap1;
         public int recentTradesToKeep;
         public bool showTrades;
         public bool showBids;
@@ -36,7 +38,7 @@ namespace ValMarRealTickAPI
         private Queue<CSVLine> csvLines;
         private DateTime lastWriteCSV;
 
-        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds)
+        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds)
         {
             this.name = name;
             this.exchange = exchange;
@@ -56,7 +58,9 @@ namespace ValMarRealTickAPI
             this.tradesPerWeek = tradesPerWeek;
             this.weeksLookBack = weeksLookBack;
             this.maxSecondsToHold = maxSecondsToHold;
-            this.stopGap = stopGap;
+            this.stopGap1 = stopGap;
+            this.stopGap2 = stopGap2;
+            this.secondsStopGap1 = secondsStopGap1;
             this.recentTradesToKeep = recentTradesToKeep;
             this.trendDownSeconds = trendDownSeconds;
             this.waitAfterSellSeconds = waitAfterSellSeconds;
@@ -157,7 +161,7 @@ namespace ValMarRealTickAPI
         // Adds volume to topTradeVolumeList if it is one of the top volumes
         public void addVolumeToList(int volumeChange)
         {
-            if (topTradeVolume.Count < Variables.currentStock().tradesPerWeek * Variables.currentStock().weeksLookBack)
+            if (topTradeVolume.Count < tradesPerWeek * weeksLookBack)
             {
                 topTradeVolume.Add(volumeChange);
                 getLowTradeIndex(true);  //Update lowTradeVol;
@@ -209,7 +213,7 @@ namespace ValMarRealTickAPI
         //If this is false then sell stock immediately
         public bool stockTimeOK()
         {
-            if( (DateTime.Now - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
+            if( (DateTime.Now - purchaseTime).TotalSeconds > maxSecondsToHold)
             {
                 return false;
             }
@@ -253,10 +257,10 @@ namespace ValMarRealTickAPI
 
         public bool setBuy()
         {
-            if (recentTrades.Count < Variables.currentStock().recentTradesToKeep)
+            if (recentTrades.Count < recentTradesToKeep)
             {
                 return buy;
-            } else if(recentTrades[0].amount < recentTrades[Variables.currentStock().recentTradesToKeep-1].amount)
+            } else if(recentTrades[0].amount < recentTrades[recentTradesToKeep-1].amount)
             {
                 // Need to ensure that we are not still in the trending down period
                 // if yes then send message to the log
@@ -331,7 +335,7 @@ namespace ValMarRealTickAPI
             if(volumesPurchased == volumesToTrade)
             {
                 //Checks if we have exceeded hold time
-                if ((DateTime.Now - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
+                if ((DateTime.Now - purchaseTime).TotalSeconds > maxSecondsToHold)
                 {
                     sell = true;
                     writeToCSV("SETSELL", 0, 0, DateTime.Now);
@@ -363,7 +367,13 @@ namespace ValMarRealTickAPI
 
         public double getCurrentStopGapPrice()
         {
-            return highPrice - (highPrice * Variables.currentStock().stopGap);
+            if ((DateTime.Now - purchaseTime).TotalSeconds > secondsStopGap1)
+            {
+                return highPrice - (highPrice * stopGap2);
+            } else
+            {
+                return highPrice - (highPrice * stopGap1);
+            }
         }
 
         public int getVolumesPurchased()

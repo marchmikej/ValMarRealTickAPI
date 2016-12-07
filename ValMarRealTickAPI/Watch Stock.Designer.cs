@@ -37,7 +37,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textRecentTradesForPrice = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.textStopGap = new System.Windows.Forms.TextBox();
+            this.textStopGap1 = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.textVolumesToPurchase = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -50,6 +50,10 @@
             this.textTrendDownSeconds = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.textWaitAfterSellSeconds = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.textStopGap2 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.textSecondsStopGap1 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -122,19 +126,19 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(38, 370);
+            this.label5.Location = new System.Drawing.Point(553, 280);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(78, 20);
+            this.label5.Size = new System.Drawing.Size(91, 20);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Stop Gap";
+            this.label5.Text = "Stop Gap 1";
             // 
-            // textStopGap
+            // textStopGap1
             // 
-            this.textStopGap.Location = new System.Drawing.Point(248, 364);
-            this.textStopGap.Name = "textStopGap";
-            this.textStopGap.Size = new System.Drawing.Size(198, 26);
-            this.textStopGap.TabIndex = 9;
-            this.textStopGap.Text = ".0004";
+            this.textStopGap1.Location = new System.Drawing.Point(734, 274);
+            this.textStopGap1.Name = "textStopGap1";
+            this.textStopGap1.Size = new System.Drawing.Size(216, 26);
+            this.textStopGap1.TabIndex = 9;
+            this.textStopGap1.Text = ".0004";
             // 
             // label6
             // 
@@ -240,11 +244,49 @@
             this.textWaitAfterSellSeconds.TabIndex = 21;
             this.textWaitAfterSellSeconds.Text = "120";
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(553, 454);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(91, 20);
+            this.label11.TabIndex = 22;
+            this.label11.Text = "Stop Gap 2";
+            // 
+            // textStopGap2
+            // 
+            this.textStopGap2.Location = new System.Drawing.Point(734, 448);
+            this.textStopGap2.Name = "textStopGap2";
+            this.textStopGap2.Size = new System.Drawing.Size(216, 26);
+            this.textStopGap2.TabIndex = 23;
+            this.textStopGap2.Text = ".0004";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(553, 362);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(158, 20);
+            this.label12.TabIndex = 24;
+            this.label12.Text = "Seconds Stop Gap 1";
+            // 
+            // textSecondsStopGap1
+            // 
+            this.textSecondsStopGap1.Location = new System.Drawing.Point(734, 356);
+            this.textSecondsStopGap1.Name = "textSecondsStopGap1";
+            this.textSecondsStopGap1.Size = new System.Drawing.Size(216, 26);
+            this.textSecondsStopGap1.TabIndex = 25;
+            this.textSecondsStopGap1.Text = "600";
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1324, 682);
+            this.Controls.Add(this.textSecondsStopGap1);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.textStopGap2);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this.textWaitAfterSellSeconds);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.textTrendDownSeconds);
@@ -257,7 +299,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textVolumesToPurchase);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.textStopGap);
+            this.Controls.Add(this.textStopGap1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textRecentTradesForPrice);
             this.Controls.Add(this.label4);
@@ -286,7 +328,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textRecentTradesForPrice;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textStopGap;
+        private System.Windows.Forms.TextBox textStopGap1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox textVolumesToPurchase;
         private System.Windows.Forms.Button button1;
@@ -299,5 +341,9 @@
         private System.Windows.Forms.TextBox textTrendDownSeconds;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox textWaitAfterSellSeconds;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textStopGap2;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox textSecondsStopGap1;
     }
 }
