@@ -22,47 +22,29 @@ namespace ValMarRealTickAPI
              
             using (var app = new ClientAdapterToolkitApp())
             {
-                //This portion of the program will initialize all of the stocks with data to analyze purchase 
-                //for the day.
-                /*
-                for (int i = 0; i < Variables.stocks.Length; i++)
-                {
-                    Variables.currentStockIndex = i;
-                    Console.WriteLine("Initializing: {0}", Variables.currentStock().name);
-                    RunIntraBar(app);
-                    Variables.currentStock().printTopTradeVol();
-                    Variables.currentStock().setInitialized();
-                    //3 second delay was needed otherwise we were getting no data returned everyonce in a while
-                    System.Threading.Thread.Sleep(3000);
-                }
-                */
-                // This will lauch the livetick for each stock to get realtime data
-                foreach (KeyValuePair<string, Stock> kvp in Variables.stocks)
-                {
-                    Task.Run(() =>
-                    {
-                        Form1 form = new Form1(app, kvp.Key);
-                        form.ShowDialog();
-                    });
-                    // I had to add this 3 second wait otherwise i was coming in at 3 with an out of bounds exception
-                    System.Threading.Thread.Sleep(10000);
-                }
+                // Launches Form for variable to be inputed and stocks to be started for watching
                 Task.Run(() =>
                 {
                     Watch_Stock watch_form = new Watch_Stock(app);
                     watch_form.ShowDialog();
                 });
 
-                while (true)
+                while (Variables.runProgram)
                 {
                     while (Variables.runTrades)
                     {
+                        // Set variables if we are running a simulation
+                        if(Variables.runSimulation)
+                        {
+                            Variables.runProgram = false;
+                            Variables.runTrades = false;
+                        }
                         foreach (string item in Variables.stocks.Keys)
                         {
                             Variables.currentStockIndex = item;
                             Variables.currentStock().printToCSV();
                             Console.WriteLine("Evalulating: {0}", Variables.currentStock().name);
-                            if (!Variables.currentStock().isInitialized())
+                            if (!Variables.currentStock().isInitialized() && !Variables.runSimulation)
                             {
                                 Task.Run(() =>
                                 {
@@ -79,12 +61,12 @@ namespace ValMarRealTickAPI
                                 RunIntraBar(app);
                             }
 
-                            if (Variables.currentStock().shouldBuy())
+                            if (Variables.currentStock().shouldBuy() && !Variables.runSimulation)
                             {
                                 writeToFile("Purchasing " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
                                 RunPlaceOrder(app);
                             }
-                            if (Variables.currentStock().shouldSell())
+                            if (Variables.currentStock().shouldSell() && !Variables.runSimulation)
                             {
                                 writeToFile("Selling " + Variables.currentStock().name + " at " + DateTime.Now.ToString());
                                 RunPlaceOrder(app);
@@ -93,7 +75,9 @@ namespace ValMarRealTickAPI
                         System.Threading.Thread.Sleep(5000);
                     }
                 }
-            }         
+            }
+            Console.WriteLine("Shutting Down");
+            System.Threading.Thread.Sleep(5000);
         }
 
         public static void writeToFile(string newLine)
@@ -194,13 +178,26 @@ namespace ValMarRealTickAPI
                 if (!Variables.currentStock().isInitialized())
                 {
                     dayBackToSearch = Variables.currentStock().weeksLookBack * 5;
-                } 
-            
-                table.WantData(table.TqlForIntradayBars(Variables.currentStock().name, minuteInterval, dayBackToSearch, false, null, null, null, null), true, false);
-                table.OnIntraday += new EventHandler<DataEventArgs<IntradayRecord>>(table_OnIntraday);
-                table.OnDead += new EventHandler<EventArgs>(table_OnDead);
-                table.Start();
-                WaitAny(10000, _evtGotData);
+                }
+                //If simulation go back extra time for eval
+                if (Variables.runSimulation)
+                {
+                    WriteLine("Kicking off simulation");
+                    dayBackToSearch += Variables.simulationDays;
+                    table.WantData(table.TqlForIntradayBars(Variables.currentStock().name, minuteInterval, dayBackToSearch, false, null, null, null, null), true, false);
+                    table.OnIntraday += new EventHandler<DataEventArgs<IntradayRecord>>(simulation_OnIntraday);
+                    table.OnDead += new EventHandler<EventArgs>(table_OnDead);
+                    table.Start();
+                    WaitAny(10000, _evtGotData);
+                }
+                else
+                {
+                    table.WantData(table.TqlForIntradayBars(Variables.currentStock().name, minuteInterval, dayBackToSearch, false, null, null, null, null), true, false);
+                    table.OnIntraday += new EventHandler<DataEventArgs<IntradayRecord>>(table_OnIntraday);
+                    table.OnDead += new EventHandler<EventArgs>(table_OnDead);
+                    table.Start();
+                    WaitAny(10000, _evtGotData);
+                }
             }
             WriteLine("DONE");
         }
@@ -318,9 +315,139 @@ namespace ValMarRealTickAPI
         }
 
         /*************************************************************************************************/
-        /* End intra day bar data                                                                       */
+        /* End intra day bar data                                                                        */
         /*************************************************************************************************/
+        /*************************************************************************************************/
+        /* Start IntraBar Simulation code                                                                */
+        /*************************************************************************************************/
+        static void simulation_OnIntraday(object sender, DataEventArgs<IntradayRecord> e)
+        {
+            WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            foreach (IntradayRecord rec in e)
+            {
+                // Variables added to track stocks for simulation
+                int stocksPurchased = 0;
+                double highPrice = 0;
+                DateTime purchaseTime = new DateTime();
+                WriteLine("DATE\t\tTIME\t\tACVOL\tHIGH\tLOW\tOPEN");
+                // Skip this evaluation if rec.Count == 0 no data was returned
+                if (rec.Count == 0)
+                {
+                    continue;
+                }
+                if (!Variables.currentStock().isInitialized())
+                {
+                    //Calculate average volume for the look back time
+                    // Added on 11/15/2016 for john's vol3 calculation
+                    int tempVolumeCount = 0;
+                  
+                    //5 is for days of the week
+                    //8 is for hours of the day
+                    //60 is for minutes per hour
+                    for (int i = 0; i < Variables.currentStock().weeksLookBack*5*8*60; i++)
+                    {
+                        WriteLine("INIT: {0}\t{1}\t{2}\t{3}\t{4}\t{5}",
+                            rec.TrdDate[i].ToShortDateString(),
+                            rec.TrdTim1[i],
+                            rec.AcVol1[i],
+                            rec.High1[i],
+                            rec.Low1[i],
+                            rec.OpenPrc[i]);
+                        tempVolumeCount += rec.AcVol1[i];
+                    }
+                    Variables.currentStock().averageVolumeHistory = tempVolumeCount / rec.Count;
 
+                    //Calculate the top differences over the look back time
+                    //5 is for days of the week
+                    //8 is for hours of the day
+                    //60 is for minutes per hour
+                    for (int i = 0; i < Variables.currentStock().weeksLookBack * 5 * 8 * 60; i++)
+                    {
+                        //Calculate volume change over last 3 minutes and add to stocks list
+                        if (i > Variables.barLookBack)
+                        {
+                            // Updated on 11/15/2016 for john's vol3 calculation
+                            Variables.currentStock().addVolumeToList(calculateVolumeChange(rec, i) - Variables.currentStock().averageVolumeHistory);
+                        }
+                    }
+                    Variables.currentStock().setInitialized();
+                    Variables.currentStock().printTopTradeVol();
+                }
+                // Run through simulation
+                for (int i = Variables.currentStock().weeksLookBack * 5 * 8 * 60; i < rec.Count; i++)
+                {
+                    //int i = rec.Count - 1;  Removed for i in for loop because of simulation
+                    DateTime tempDate = new DateTime(rec.TrdDate[i].Year, rec.TrdDate[i].Month, rec.TrdDate[i].Day, rec.TrdTim1[i].Hours, rec.TrdTim1[i].Minutes, rec.TrdTim1[i].Seconds);
+                    WriteLine("Record count: {0}", i);
+                    WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
+                        rec.TrdDate[i].ToShortDateString(),
+                        rec.TrdTim1[i],
+                        rec.AcVol1[i],
+                        rec.High1[i],
+                        rec.Low1[i],
+                        rec.OpenPrc[i]);
+                    if (i > Variables.barLookBack)
+                    {
+                        // Updated on 11/15/2016 for john's vol3 calculation
+                        int totalVolumeChange = calculateVolumeChange(rec, i) - Variables.currentStock().averageVolumeHistory;
+
+                        Variables.currentStock().writeToCSV("VOLUMECHANGELAST3MIN", totalVolumeChange, Variables.currentStock().getTradeVol(), tempDate);
+                        WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
+                        if (Variables.currentStock().getTradeVol() < totalVolumeChange && stocksPurchased == 0)
+                        {
+                            if (rec.OpenPrc[i].DecimalValue <= rec.OpenPrc[i - 1].DecimalValue)
+                            {
+                                Variables.currentStock().writeToCSV("NOBUYTRENDINGDOWN", Variables.currentStock().getVolumesToTrade(), Convert.ToDouble(rec.OpenPrc[i].DecimalValue), tempDate);
+                            }
+                            else
+                            {
+                                //We are buying this stock
+                                stocksPurchased = Variables.currentStock().getVolumesToTrade();
+                                highPrice = Convert.ToDouble(rec.OpenPrc[i].DecimalValue);
+                                purchaseTime = tempDate;
+                                Variables.currentStock().writeToCSV("BUY", Variables.currentStock().getVolumesToTrade(), Convert.ToDouble(rec.OpenPrc[i].DecimalValue), tempDate);
+                            }
+                        }
+                        if(stocksPurchased > 0)
+                        {
+                            if(highPrice < Convert.ToDouble(rec.OpenPrc[i].DecimalValue))
+                            {
+                                highPrice = Convert.ToDouble(rec.OpenPrc[i].DecimalValue);
+                            } else if((tempDate - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
+                            {
+                                stocksPurchased = 0;
+                                Variables.currentStock().writeToCSV("SELLMAXSECONDSREACHED", Variables.currentStock().getVolumesToTrade(), Convert.ToDouble(rec.OpenPrc[i].DecimalValue), tempDate);
+                            }
+                            else
+                            {
+                                double stopGap = 0;
+                                if ((tempDate - purchaseTime).TotalSeconds > Variables.currentStock().secondsStopGap1)
+                                {
+                                    stopGap = highPrice - (highPrice * Variables.currentStock().stopGap2);
+                                }
+                                else
+                                {
+                                    stopGap = highPrice - (highPrice * Variables.currentStock().stopGap1);
+                                }
+                                if(stopGap > Convert.ToDouble(rec.OpenPrc[i].DecimalValue))
+                                {
+                                    stocksPurchased = 0;
+                                    Variables.currentStock().writeToCSV("SELLSTOPGAP", Variables.currentStock().getVolumesToTrade(), Convert.ToDouble(rec.OpenPrc[i].DecimalValue), tempDate);
+                                }
+                            }
+                        }
+                        // Add this volume to list if in the top trade volumes
+                        Variables.currentStock().addVolumeToList(totalVolumeChange);
+                    }
+                }
+            }
+            Variables.currentStock().printToCSV();
+            Console.WriteLine(Variables.currentStock().name + " should print to CSV");
+            _evtGotData.Set();
+        }
+        /*********************************************************************/
+        /*  End IntraBar simulation                                          */
+        /*********************************************************************/
         /*************************************************************************************************/
         /* Start Buy/Sell portion                                                                        */
         /*************************************************************************************************/

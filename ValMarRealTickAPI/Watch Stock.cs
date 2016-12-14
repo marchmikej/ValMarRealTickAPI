@@ -71,7 +71,8 @@ namespace ValMarRealTickAPI
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if(Variables.runTrades)
+            buttonRunSim.Enabled = false;  //Make simulation button unusable
+            if (Variables.runTrades)
             {
                 Variables.runTrades = false;
                 button2.Text = "Start Trades";
@@ -80,6 +81,14 @@ namespace ValMarRealTickAPI
                 Variables.runTrades = true;
                 button2.Text = "Stop Trades";
             }
+        }
+
+        private void buttonRunSim_Click(object sender, EventArgs e)
+        {
+            Variables.runSimulation = true;
+            button2.Enabled = false;
+            Variables.runTrades = true;
+            Variables.simulationDays = Convert.ToInt32(textSimDays.Text);
         }
     }
 }

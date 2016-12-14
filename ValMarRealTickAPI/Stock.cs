@@ -26,9 +26,9 @@ namespace ValMarRealTickAPI
         public int tradesPerWeek;
         public int weeksLookBack;
         public double maxSecondsToHold;
-        private double stopGap1;
-        private double stopGap2;
-        private int secondsStopGap1;
+        public double stopGap1;
+        public double stopGap2;
+        public int secondsStopGap1;
         public int recentTradesToKeep;
         public bool showTrades;
         public bool showBids;
@@ -106,8 +106,14 @@ namespace ValMarRealTickAPI
         {
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string path = Path.Combine(folder, name + ".csv");
+            if (Variables.runSimulation)
+            {
+                path = Path.Combine(folder, name + "_simulation.csv");
+                Helper.WriteLine("sim print.");
+                Helper.WriteLine("csv lines to print: " + csvLines.Count);
+            } 
 
-            if ((DateTime.Now - lastWriteCSV).TotalSeconds > 60) {
+            if ((DateTime.Now - lastWriteCSV).TotalSeconds > 60  || Variables.runSimulation) {
                 lastWriteCSV = DateTime.Now;
                 Helper.WriteLine(name + " should print");
                 if (!File.Exists(path))
@@ -204,6 +210,7 @@ namespace ValMarRealTickAPI
 
         public void printTopTradeVol()
         {
+            Console.WriteLine("Printing top trade volume for {0} size {1}", name, topTradeVolume.Count);
             for (int i = 0; i < topTradeVolume.Count; i++)
             {
                 Console.WriteLine("{0} {1}", name, topTradeVolume[i]);

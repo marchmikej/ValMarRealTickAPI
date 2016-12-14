@@ -54,6 +54,9 @@
             this.textStopGap2 = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
             this.textSecondsStopGap1 = new System.Windows.Forms.TextBox();
+            this.buttonRunSim = new System.Windows.Forms.Button();
+            this.label13 = new System.Windows.Forms.Label();
+            this.textSimDays = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -278,11 +281,41 @@
             this.textSecondsStopGap1.TabIndex = 25;
             this.textSecondsStopGap1.Text = "600";
             // 
+            // buttonRunSim
+            // 
+            this.buttonRunSim.Location = new System.Drawing.Point(557, 597);
+            this.buttonRunSim.Name = "buttonRunSim";
+            this.buttonRunSim.Size = new System.Drawing.Size(141, 53);
+            this.buttonRunSim.TabIndex = 26;
+            this.buttonRunSim.Text = "Run Simulation";
+            this.buttonRunSim.UseVisualStyleBackColor = true;
+            this.buttonRunSim.Click += new System.EventHandler(this.buttonRunSim_Click);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(557, 527);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(123, 20);
+            this.label13.TabIndex = 27;
+            this.label13.Text = "Simulation Days";
+            // 
+            // textSimDays
+            // 
+            this.textSimDays.Location = new System.Drawing.Point(734, 520);
+            this.textSimDays.Name = "textSimDays";
+            this.textSimDays.Size = new System.Drawing.Size(216, 26);
+            this.textSimDays.TabIndex = 28;
+            this.textSimDays.Text = "60";
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1324, 682);
+            this.Controls.Add(this.textSimDays);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.buttonRunSim);
             this.Controls.Add(this.textSecondsStopGap1);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.textStopGap2);
@@ -345,5 +378,8 @@
         private System.Windows.Forms.TextBox textStopGap2;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textSecondsStopGap1;
+        private System.Windows.Forms.Button buttonRunSim;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox textSimDays;
     }
 }
