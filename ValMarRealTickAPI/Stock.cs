@@ -37,8 +37,12 @@ namespace ValMarRealTickAPI
         private DateTime lastSellTime;
         private Queue<CSVLine> csvLines;
         private DateTime lastWriteCSV;
+        public int startHour;
+        public int startMinute;
+        public int endHour;
+        public int endMinute;
 
-        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds)
+        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute)
         {
             this.name = name;
             this.exchange = exchange;
@@ -64,6 +68,11 @@ namespace ValMarRealTickAPI
             this.recentTradesToKeep = recentTradesToKeep;
             this.trendDownSeconds = trendDownSeconds;
             this.waitAfterSellSeconds = waitAfterSellSeconds;
+            this.endHour = endHour;
+            this.endMinute = endMinute;
+            this.startHour = startHour;
+            this.startMinute = startMinute;
+
             // Initializing below times minus the buffer so they will not wait to buy at initial launch
             lastSellTime = DateTime.Now.AddSeconds(waitAfterSellSeconds * -1);
             lastTrendDownTime = DateTime.Now.AddSeconds(trendDownSeconds * -1); ;

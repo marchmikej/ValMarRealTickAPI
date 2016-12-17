@@ -57,6 +57,14 @@
             this.buttonRunSim = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
             this.textSimDays = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.textStartHour = new System.Windows.Forms.TextBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.textStartMinute = new System.Windows.Forms.TextBox();
+            this.textEndHour = new System.Windows.Forms.TextBox();
+            this.textEndMinute = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -308,11 +316,87 @@
             this.textSimDays.TabIndex = 28;
             this.textSimDays.Text = "60";
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(1055, 49);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(83, 20);
+            this.label14.TabIndex = 29;
+            this.label14.Text = "Start Hour";
+            // 
+            // textStartHour
+            // 
+            this.textStartHour.Location = new System.Drawing.Point(1157, 43);
+            this.textStartHour.Name = "textStartHour";
+            this.textStartHour.Size = new System.Drawing.Size(221, 26);
+            this.textStartHour.TabIndex = 30;
+            this.textStartHour.Text = "10";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(1055, 120);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(96, 20);
+            this.label15.TabIndex = 31;
+            this.label15.Text = "Start Minute";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(1055, 197);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(77, 20);
+            this.label16.TabIndex = 32;
+            this.label16.Text = "End Hour";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(1055, 280);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(90, 20);
+            this.label17.TabIndex = 33;
+            this.label17.Text = "End Minute";
+            // 
+            // textStartMinute
+            // 
+            this.textStartMinute.Location = new System.Drawing.Point(1157, 114);
+            this.textStartMinute.Name = "textStartMinute";
+            this.textStartMinute.Size = new System.Drawing.Size(221, 26);
+            this.textStartMinute.TabIndex = 34;
+            this.textStartMinute.Text = "0";
+            // 
+            // textEndHour
+            // 
+            this.textEndHour.Location = new System.Drawing.Point(1157, 191);
+            this.textEndHour.Name = "textEndHour";
+            this.textEndHour.Size = new System.Drawing.Size(221, 26);
+            this.textEndHour.TabIndex = 35;
+            this.textEndHour.Text = "15";
+            // 
+            // textEndMinute
+            // 
+            this.textEndMinute.Location = new System.Drawing.Point(1157, 274);
+            this.textEndMinute.Name = "textEndMinute";
+            this.textEndMinute.Size = new System.Drawing.Size(221, 26);
+            this.textEndMinute.TabIndex = 36;
+            this.textEndMinute.Text = "0";
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1324, 682);
+            this.ClientSize = new System.Drawing.Size(1478, 682);
+            this.Controls.Add(this.textEndMinute);
+            this.Controls.Add(this.textEndHour);
+            this.Controls.Add(this.textStartMinute);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.textStartHour);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.textSimDays);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.buttonRunSim);
@@ -381,5 +465,13 @@
         private System.Windows.Forms.Button buttonRunSim;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox textSimDays;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox textStartHour;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox textStartMinute;
+        private System.Windows.Forms.TextBox textEndHour;
+        private System.Windows.Forms.TextBox textEndMinute;
     }
 }
