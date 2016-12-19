@@ -50,12 +50,17 @@ namespace ValMarRealTickAPI
                 MessageBox.Show("Please enter seconds to wait after sell");
                 return;
             }
+            else if (textDollarAmountToPurchase.Text == "")
+            {
+                MessageBox.Show("Please enter dollar amount to purchase");
+                return;
+            }
             try
             {
                 if (!Variables.stocks.ContainsKey(textSymbol.Text))
                 {
                     Helper.WriteLine("Added Stock: " + textSymbol.Text);
-                    Variables.stocks.Add(textSymbol.Text, new Stock(textSymbol.Text, textStockExchange.Text, Convert.ToInt32(textVolumesToPurchase.Text), Convert.ToInt32(textTradesPerWeek.Text), Convert.ToInt32(textWeeksLookBack.Text), Convert.ToInt32(textMaxSecondsToHold.Text), Convert.ToDouble(textStopGap1.Text), Convert.ToDouble(textStopGap2.Text), Convert.ToInt32(textSecondsStopGap1.Text), Convert.ToInt32(textRecentTradesForPrice.Text), Convert.ToInt32(textTrendDownSeconds.Text), Convert.ToInt32(textWaitAfterSellSeconds.Text), Convert.ToInt32(textStartHour.Text), Convert.ToInt32(textStartMinute.Text), Convert.ToInt32(textEndHour.Text), Convert.ToInt32(textEndMinute.Text)));
+                    Variables.stocks.Add(textSymbol.Text, new Stock(textSymbol.Text, textStockExchange.Text, Convert.ToInt32(textTradesPerWeek.Text), Convert.ToInt32(textWeeksLookBack.Text), Convert.ToInt32(textMaxSecondsToHold.Text), Convert.ToDouble(textStopGap1.Text), Convert.ToDouble(textStopGap2.Text), Convert.ToInt32(textSecondsStopGap1.Text), Convert.ToInt32(textRecentTradesForPrice.Text), Convert.ToInt32(textTrendDownSeconds.Text), Convert.ToInt32(textWaitAfterSellSeconds.Text), Convert.ToInt32(textStartHour.Text), Convert.ToInt32(textStartMinute.Text), Convert.ToInt32(textEndHour.Text), Convert.ToInt32(textEndMinute.Text), Convert.ToInt32(textDollarAmountToPurchase.Text)));
                 } else
                 {
                     Helper.WriteLine("Stock has already been added no duplicates allowed: " + textSymbol.Text);

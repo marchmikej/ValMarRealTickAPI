@@ -13,6 +13,7 @@ namespace ValMarRealTickAPI
         public string exchange;
         private int volumesPurchased;
         private int volumesToTrade;
+        private int dollarAmountToPurchase;
         public double highPrice;
         private List<int> topTradeVolume;
         private int lowTradeVolIndex;
@@ -42,7 +43,7 @@ namespace ValMarRealTickAPI
         public int endHour;
         public int endMinute;
 
-        public Stock(string name, string exchange, int volumesToPurchase, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute)
+        public Stock(string name, string exchange, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute, int dollarAmountToPurchase)
         {
             this.name = name;
             this.exchange = exchange;
@@ -50,7 +51,6 @@ namespace ValMarRealTickAPI
             lowTradeVolIndex = -1;
             initialized = false;
             volumesPurchased = 0;
-            this.volumesToTrade = volumesToPurchase;
             buy = false;
             sell = false;
             highPrice = 0;
@@ -72,6 +72,7 @@ namespace ValMarRealTickAPI
             this.endMinute = endMinute;
             this.startHour = startHour;
             this.startMinute = startMinute;
+            this.dollarAmountToPurchase = dollarAmountToPurchase;
 
             // Initializing below times minus the buffer so they will not wait to buy at initial launch
             lastSellTime = DateTime.Now.AddSeconds(waitAfterSellSeconds * -1);
@@ -118,13 +119,10 @@ namespace ValMarRealTickAPI
             if (Variables.runSimulation)
             {
                 path = Path.Combine(folder, name + "_simulation.csv");
-                Helper.WriteLine("sim print.");
-                Helper.WriteLine("csv lines to print: " + csvLines.Count);
             } 
 
             if ((DateTime.Now - lastWriteCSV).TotalSeconds > 60  || Variables.runSimulation) {
                 lastWriteCSV = DateTime.Now;
-                Helper.WriteLine(name + " should print");
                 if (!File.Exists(path))
                 {
                     // Create a file to write to.
@@ -259,7 +257,8 @@ namespace ValMarRealTickAPI
 
         public int getVolumesToTrade()
         {
-            return volumesToTrade;
+            int volumesToTradeNow = (int)(dollarAmountToPurchase / recentTrades[0].amount);
+            return volumesToTradeNow;
         }
 
         public bool stockHeld()

@@ -38,8 +38,6 @@
             this.textRecentTradesForPrice = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.textStopGap1 = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.textVolumesToPurchase = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.textStockExchange = new System.Windows.Forms.TextBox();
@@ -65,6 +63,8 @@
             this.textStartMinute = new System.Windows.Forms.TextBox();
             this.textEndHour = new System.Windows.Forms.TextBox();
             this.textEndMinute = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.textDollarAmountToPurchase = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -150,23 +150,6 @@
             this.textStopGap1.Size = new System.Drawing.Size(216, 26);
             this.textStopGap1.TabIndex = 9;
             this.textStopGap1.Text = ".0004";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(42, 461);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(152, 20);
-            this.label6.TabIndex = 10;
-            this.label6.Text = "Volume to Purchase";
-            // 
-            // textVolumesToPurchase
-            // 
-            this.textVolumesToPurchase.Location = new System.Drawing.Point(248, 454);
-            this.textVolumesToPurchase.Name = "textVolumesToPurchase";
-            this.textVolumesToPurchase.Size = new System.Drawing.Size(198, 26);
-            this.textVolumesToPurchase.TabIndex = 11;
-            this.textVolumesToPurchase.Text = "100";
             // 
             // button1
             // 
@@ -384,11 +367,29 @@
             this.textEndMinute.TabIndex = 36;
             this.textEndMinute.Text = "0";
             // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(38, 362);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(199, 20);
+            this.label18.TabIndex = 37;
+            this.label18.Text = "Dollar Amount to Purchase";
+            // 
+            // textDollarAmountToPurchase
+            // 
+            this.textDollarAmountToPurchase.Location = new System.Drawing.Point(248, 356);
+            this.textDollarAmountToPurchase.Name = "textDollarAmountToPurchase";
+            this.textDollarAmountToPurchase.Size = new System.Drawing.Size(198, 26);
+            this.textDollarAmountToPurchase.TabIndex = 38;
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1478, 682);
+            this.Controls.Add(this.textDollarAmountToPurchase);
+            this.Controls.Add(this.label18);
             this.Controls.Add(this.textEndMinute);
             this.Controls.Add(this.textEndHour);
             this.Controls.Add(this.textStartMinute);
@@ -414,8 +415,6 @@
             this.Controls.Add(this.textStockExchange);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.textVolumesToPurchase);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.textStopGap1);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textRecentTradesForPrice);
@@ -446,8 +445,6 @@
         private System.Windows.Forms.TextBox textRecentTradesForPrice;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textStopGap1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox textVolumesToPurchase;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textStockExchange;
@@ -473,5 +470,7 @@
         private System.Windows.Forms.TextBox textStartMinute;
         private System.Windows.Forms.TextBox textEndHour;
         private System.Windows.Forms.TextBox textEndMinute;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox textDollarAmountToPurchase;
     }
 }

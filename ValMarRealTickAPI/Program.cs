@@ -77,7 +77,7 @@ namespace ValMarRealTickAPI
                 }
             }
             Console.WriteLine("Shutting Down");
-            System.Threading.Thread.Sleep(5000);
+            System.Threading.Thread.Sleep(1000);
         }
 
         public static void writeToFile(string newLine)
@@ -305,6 +305,7 @@ namespace ValMarRealTickAPI
                     {
                         continue;
                     }
+           
                     WriteLine("Record count: {0}", i);
                     WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                         rec.TrdDate[i].ToShortDateString(),
@@ -388,6 +389,7 @@ namespace ValMarRealTickAPI
                             //continue;
                         } else
                         {
+                            /*
                             WriteLine("INIT: {0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                                 rec.TrdDate[i].ToShortDateString(),
                                 rec.TrdTim1[i],
@@ -395,6 +397,7 @@ namespace ValMarRealTickAPI
                                 rec.High1[i],
                                 rec.Low1[i],
                                 rec.OpenPrc[i]);
+                                */
                             tempVolumeCount += rec.AcVol1[i];
                             tempVolumeNumber++;
                         }
@@ -444,21 +447,21 @@ namespace ValMarRealTickAPI
 
                     //int i = rec.Count - 1;  Removed for i in for loop because of simulation
                     DateTime tempDate = new DateTime(rec.TrdDate[i].Year, rec.TrdDate[i].Month, rec.TrdDate[i].Day, rec.TrdTim1[i].Hours, rec.TrdTim1[i].Minutes, rec.TrdTim1[i].Seconds);
-                    WriteLine("Record count: {0}", i);
+                   /* WriteLine("Record count: {0}", i);
                     WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}",
                         rec.TrdDate[i].ToShortDateString(),
                         rec.TrdTim1[i],
                         rec.AcVol1[i],
                         rec.High1[i],
                         rec.Low1[i],
-                        rec.OpenPrc[i]);
+                        rec.OpenPrc[i]);*/
                     if (i > Variables.barLookBack)
                     {
                         // Updated on 11/15/2016 for john's vol3 calculation
                         int totalVolumeChange = calculateVolumeChange(rec, i) - Variables.currentStock().averageVolumeHistory;
-
+                        Variables.currentStock().addTrade(new Trade(tempDate, 100, Convert.ToDouble(rec.OpenPrc[i].DecimalValue)));
                         Variables.currentStock().writeToCSV("VOLUMECHANGELAST3MIN", totalVolumeChange, Variables.currentStock().getTradeVol(), tempDate);
-                        WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
+                        //WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
                         if (Variables.currentStock().getTradeVol() < totalVolumeChange && stocksPurchased == 0)
                         {
                             if (rec.OpenPrc[i].DecimalValue <= rec.OpenPrc[i - 1].DecimalValue)
@@ -483,9 +486,9 @@ namespace ValMarRealTickAPI
                                 highPrice = Convert.ToDouble(rec.OpenPrc[i].DecimalValue);
                             } else if((tempDate - purchaseTime).TotalSeconds > Variables.currentStock().maxSecondsToHold)
                             {
-                                stocksPurchased = 0;
-                                amountSold += Variables.currentStock().getVolumesToTrade() * Convert.ToDouble(rec.OpenPrc[i].DecimalValue);
+                                amountSold += stocksPurchased * Convert.ToDouble(rec.OpenPrc[i].DecimalValue);
                                 Variables.currentStock().writeToCSV("SELLMAXSECONDSREACHED", Variables.currentStock().getVolumesToTrade(), Convert.ToDouble(rec.OpenPrc[i].DecimalValue), tempDate);
+                                stocksPurchased = 0;
                             }
                             else
                             {
@@ -511,17 +514,22 @@ namespace ValMarRealTickAPI
                     }
                 }
             }
+            String outputMessageBox = Variables.currentStock().name + "\n";
             Variables.currentStock().writeToCSV("AMOUNTPURCHASED", 0, amountPurchased, DateTime.Now);
             WriteLine("Amount Purchased: " + amountPurchased);
+            outputMessageBox += "Amount Purchased: " + amountPurchased + "\n";
             Variables.currentStock().writeToCSV("AMOUNTSOLD", 0, amountSold, DateTime.Now);
             WriteLine("Amount Sold: " + amountSold);
+            outputMessageBox += "Amount Sold: " + amountSold + "\n";
             Variables.currentStock().writeToCSV("NUMBEROFBUYS", 0, numberOfBuys, DateTime.Now);
             WriteLine("Number of Buys: " + numberOfBuys);
+            outputMessageBox += "Number of Buys: " + numberOfBuys + "\n";
             Variables.currentStock().writeToCSV("AVERAGEHOLDTIME", 0, minutesHeld / numberOfBuys, DateTime.Now);
             WriteLine("Average Hold Time: " + minutesHeld / numberOfBuys);
+            outputMessageBox += "Average Hold Time: " + minutesHeld / numberOfBuys + "\n";
             Variables.currentStock().printToCSV();
-            Console.WriteLine(Variables.currentStock().name + " should print to CSV");
             _evtGotData.Set();
+            System.Windows.Forms.MessageBox.Show(outputMessageBox);
         }
         /*********************************************************************/
         /*  End IntraBar simulation                                          */
@@ -646,18 +654,19 @@ namespace ValMarRealTickAPI
             {
                 bld.SetBuySell(OrderBuilder.BuySell.BUY);
                 Variables.currentStock().buySent();
+                bld.SetVolume(Variables.currentStock().getVolumesToTrade());
             }
             else
             {
                 bld.SetBuySell(OrderBuilder.BuySell.SELL);
                 Variables.currentStock().sellSent();
                 Variables.currentStock().soldStock();
+                bld.SetVolume(Variables.currentStock().getVolumesPurchased());
             }
             bld.SetExpiration(OrderBuilder.Expiration.DAY);
             bld.SetRoute(Variables.route);
             bld.SetSymbol(Variables.currentStock().name, Variables.currentStock().exchange, OrderBuilder.SecurityType.STOCK);
             bld.SetPriceMarket();
-            bld.SetVolume(Variables.currentStock().getVolumesToTrade());
             cache.SubmitOrder(bld);
 
             _state = State.OrderInPlay;
