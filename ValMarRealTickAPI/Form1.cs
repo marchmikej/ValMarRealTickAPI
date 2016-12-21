@@ -26,6 +26,7 @@ namespace ValMarRealTickAPI
             _app = app;
             this.stockIndex = stockIndex;
             InitializeComponent();
+            this.Text = stockIndex;
             LiveQuoteForm_Load();
         }
 
