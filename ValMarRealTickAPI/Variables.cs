@@ -13,12 +13,12 @@ namespace ValMarRealTickAPI
         //public const double maxSecondsToHold = 1200;
         //public const double stopGap = .0008;
         //public const int recentTradesToKeep = 10;
-        public const string route = "DEMO";
         public static bool runTrades = false;
         public static int barLookBack = 3;
         public static bool runProgram = true;
         public static bool runSimulation = false;
         public static int simulationDays = 65;
+        public static bool isDemo = false;
 /*
         public static Stock[] stocks = new Stock[7] {
             new Stock("GWPH", "NAS", 100, 60, 2, 1200, .0008, 10),

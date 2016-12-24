@@ -65,6 +65,9 @@
             this.textEndMinute = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.textDollarAmountToPurchase = new System.Windows.Forms.TextBox();
+            this.checkDemo = new System.Windows.Forms.CheckBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.textRoute = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -302,7 +305,7 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(1055, 49);
+            this.label14.Location = new System.Drawing.Point(1055, 117);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(83, 20);
             this.label14.TabIndex = 29;
@@ -310,7 +313,7 @@
             // 
             // textStartHour
             // 
-            this.textStartHour.Location = new System.Drawing.Point(1157, 43);
+            this.textStartHour.Location = new System.Drawing.Point(1157, 114);
             this.textStartHour.Name = "textStartHour";
             this.textStartHour.Size = new System.Drawing.Size(221, 26);
             this.textStartHour.TabIndex = 30;
@@ -319,7 +322,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(1055, 120);
+            this.label15.Location = new System.Drawing.Point(1055, 197);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(96, 20);
             this.label15.TabIndex = 31;
@@ -328,7 +331,7 @@
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(1055, 197);
+            this.label16.Location = new System.Drawing.Point(1055, 280);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(77, 20);
             this.label16.TabIndex = 32;
@@ -337,7 +340,7 @@
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(1055, 280);
+            this.label17.Location = new System.Drawing.Point(1055, 362);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(90, 20);
             this.label17.TabIndex = 33;
@@ -345,7 +348,7 @@
             // 
             // textStartMinute
             // 
-            this.textStartMinute.Location = new System.Drawing.Point(1157, 114);
+            this.textStartMinute.Location = new System.Drawing.Point(1157, 191);
             this.textStartMinute.Name = "textStartMinute";
             this.textStartMinute.Size = new System.Drawing.Size(221, 26);
             this.textStartMinute.TabIndex = 34;
@@ -353,7 +356,7 @@
             // 
             // textEndHour
             // 
-            this.textEndHour.Location = new System.Drawing.Point(1157, 191);
+            this.textEndHour.Location = new System.Drawing.Point(1157, 274);
             this.textEndHour.Name = "textEndHour";
             this.textEndHour.Size = new System.Drawing.Size(221, 26);
             this.textEndHour.TabIndex = 35;
@@ -361,7 +364,7 @@
             // 
             // textEndMinute
             // 
-            this.textEndMinute.Location = new System.Drawing.Point(1157, 274);
+            this.textEndMinute.Location = new System.Drawing.Point(1157, 356);
             this.textEndMinute.Name = "textEndMinute";
             this.textEndMinute.Size = new System.Drawing.Size(221, 26);
             this.textEndMinute.TabIndex = 36;
@@ -383,11 +386,40 @@
             this.textDollarAmountToPurchase.Size = new System.Drawing.Size(198, 26);
             this.textDollarAmountToPurchase.TabIndex = 38;
             // 
+            // checkDemo
+            // 
+            this.checkDemo.AutoSize = true;
+            this.checkDemo.Location = new System.Drawing.Point(1059, 454);
+            this.checkDemo.Name = "checkDemo";
+            this.checkDemo.Size = new System.Drawing.Size(141, 24);
+            this.checkDemo.TabIndex = 40;
+            this.checkDemo.Text = "Demo Account";
+            this.checkDemo.UseVisualStyleBackColor = true;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(1059, 49);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(53, 20);
+            this.label6.TabIndex = 41;
+            this.label6.Text = "Route";
+            // 
+            // textRoute
+            // 
+            this.textRoute.Location = new System.Drawing.Point(1157, 43);
+            this.textRoute.Name = "textRoute";
+            this.textRoute.Size = new System.Drawing.Size(221, 26);
+            this.textRoute.TabIndex = 42;
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1478, 682);
+            this.Controls.Add(this.textRoute);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.checkDemo);
             this.Controls.Add(this.textDollarAmountToPurchase);
             this.Controls.Add(this.label18);
             this.Controls.Add(this.textEndMinute);
@@ -472,5 +504,8 @@
         private System.Windows.Forms.TextBox textEndMinute;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox textDollarAmountToPurchase;
+        private System.Windows.Forms.CheckBox checkDemo;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox textRoute;
     }
 }

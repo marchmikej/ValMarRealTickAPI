@@ -11,6 +11,7 @@ namespace ValMarRealTickAPI
     {
         public string name;
         public string exchange;
+        public string route;
         private int volumesPurchased;
         private int dollarAmountToPurchase;
         public double highPrice;
@@ -42,10 +43,11 @@ namespace ValMarRealTickAPI
         public int endHour;
         public int endMinute;
 
-        public Stock(string name, string exchange, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute, int dollarAmountToPurchase)
+        public Stock(string name, string exchange, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute, int dollarAmountToPurchase, string route)
         {
             this.name = name;
             this.exchange = exchange;
+            this.route = route;
             topTradeVolume = new List<int>();
             lowTradeVolIndex = -1;
             initialized = false;

@@ -675,7 +675,13 @@ namespace ValMarRealTickAPI
             // successfully get a fill as desired for this example.
             var bld = new OrderBuilder(cache);
             //bld.SetAccount(null, "TEST", null, null);
-            bld.SetAccount("LATEST", "TEST", "01", "CATALYST");
+            if(Variables.isDemo)
+            {
+                bld.SetAccount("LATEST", "TEST", "01", "CATALYST");
+            } else
+            {
+               bld.SetAccount("LSPS", "80", "LSPS", "1LD41223");
+            }
             //This will determine if we are selling or buying stock
             if (Variables.currentStock().shouldBuy())
             {
@@ -691,7 +697,7 @@ namespace ValMarRealTickAPI
                 bld.SetVolume(Variables.currentStock().getVolumesPurchased());
             }
             bld.SetExpiration(OrderBuilder.Expiration.DAY);
-            bld.SetRoute(Variables.route);
+            bld.SetRoute(Variables.currentStock().route);
             bld.SetSymbol(Variables.currentStock().name, Variables.currentStock().exchange, OrderBuilder.SecurityType.STOCK);
             bld.SetPriceMarket();
             cache.SubmitOrder(bld);
