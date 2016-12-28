@@ -698,6 +698,7 @@ namespace ValMarRealTickAPI
             }
             bld.SetExpiration(OrderBuilder.Expiration.DAY);
             bld.SetRoute(Variables.currentStock().route);
+            bld.Set("ACCT_TYPE", RealTick.Api.Data.FieldType.IntScalar, 119);
             bld.SetSymbol(Variables.currentStock().name, Variables.currentStock().exchange, OrderBuilder.SecurityType.STOCK);
             bld.SetPriceMarket();
             cache.SubmitOrder(bld);
