@@ -164,5 +164,10 @@ namespace ValMarRealTickAPI
                 button4.Text = "Hide Bids";
             }
         }
+
+        private void buttonSell_Click(object sender, EventArgs e)
+        {
+            Variables.stocks[stockIndex].setManualSell();
+        }
     }
 }

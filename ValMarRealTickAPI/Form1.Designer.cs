@@ -33,6 +33,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.buttonSell = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // listBox1
@@ -84,11 +85,22 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // buttonSell
+            // 
+            this.buttonSell.Location = new System.Drawing.Point(708, 543);
+            this.buttonSell.Name = "buttonSell";
+            this.buttonSell.Size = new System.Drawing.Size(146, 36);
+            this.buttonSell.TabIndex = 5;
+            this.buttonSell.Text = "Sell";
+            this.buttonSell.UseVisualStyleBackColor = true;
+            this.buttonSell.Click += new System.EventHandler(this.buttonSell_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1377, 670);
+            this.Controls.Add(this.buttonSell);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
@@ -107,5 +119,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonSell;
     }
 }

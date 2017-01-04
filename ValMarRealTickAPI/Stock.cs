@@ -351,6 +351,15 @@ namespace ValMarRealTickAPI
             writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
         }
 
+        public void setManualSell()
+        {
+            if (volumesPurchased > 0)
+            {
+                sell = true;
+                writeToCSV("SETSELLMANUAL", 0, 0, DateTime.Now);
+            }
+        }
+
         public bool shouldSell()
         {
             if(volumesPurchased > 0)
