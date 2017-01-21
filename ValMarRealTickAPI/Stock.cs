@@ -20,6 +20,7 @@ namespace ValMarRealTickAPI
         private bool initialized;
         private DateTime purchaseTime;
         private List<Trade> recentTrades;
+        private List<Trade> tradesOneMinute;
         private bool buy;  //When buy is true then the main program will purchase the stock
         private bool sell;  //When sell is true then the main program will sell the stock
         private int trendDownSeconds;
@@ -56,6 +57,7 @@ namespace ValMarRealTickAPI
             sell = false;
             highPrice = 0;
             recentTrades = new List<Trade>();
+            tradesOneMinute = new List<Trade>();
             showBids = false;
             showTrades = false;
             averageVolumeHistory = 0;
@@ -154,7 +156,43 @@ namespace ValMarRealTickAPI
         public void addTrade(Trade newTrade)
         {
             writeToCSV("TRADE", newTrade.volume, newTrade.amount, newTrade.time);
-            if(recentTrades.Count > recentTradesToKeep)
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+            int averageVolumeChange = 0;
+            int volumeOneMinute = 0;
+            int volumeTwoMinute = 0;
+            int volumeThreeMinute = 0;            
+            tradesOneMinute.Insert(0, newTrade);
+
+            for(int i=0;i>tradesOneMinute.Count;i++)
+            {
+                if((DateTime.Now - tradesOneMinute[i].time).TotalSeconds < 60)
+                {
+                    volumeOneMinute += tradesOneMinute[i].volume;
+                } else if ((DateTime.Now - tradesOneMinute[i].time).TotalSeconds < 120)
+                {
+                    volumeTwoMinute += tradesOneMinute[i].volume;
+                } else if ((DateTime.Now - tradesOneMinute[i].time).TotalSeconds < 180)
+                {
+                    volumeThreeMinute += tradesOneMinute[i].volume;
+                } else
+                {
+                    tradesOneMinute.RemoveAt(i);
+                }
+            }
+
+            averageVolumeChange += volumeOneMinute + volumeTwoMinute + volumeThreeMinute;
+            
+            int calculateVolumeChange = averageVolumeChange / 3;
+
+            int totalVolumeChange = calculateVolumeChange - averageVolumeHistory;
+            writeToCSV("VOLUMECHANGELAST3MINFROMSTOCK", totalVolumeChange, getTradeVol(), DateTime.Now);
+            if (getTradeVol() < totalVolumeChange) {
+                //This sets the current stock to a buy status which will be executed above
+                //because I was unsure of the best way to pass app to the purchase method.
+                setBuy();
+            }
+            /////////////////////////////////////////////////////////////////////////////////////////////////
+            if (recentTrades.Count > recentTradesToKeep)
             {
                 recentTrades.RemoveAt(0);
             }
