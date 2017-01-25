@@ -34,6 +34,7 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.buttonSell = new System.Windows.Forms.Button();
+            this.buttonShowRecent = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // listBox1
@@ -95,11 +96,22 @@
             this.buttonSell.UseVisualStyleBackColor = true;
             this.buttonSell.Click += new System.EventHandler(this.buttonSell_Click);
             // 
+            // buttonShowRecent
+            // 
+            this.buttonShowRecent.Location = new System.Drawing.Point(889, 543);
+            this.buttonShowRecent.Name = "buttonShowRecent";
+            this.buttonShowRecent.Size = new System.Drawing.Size(116, 36);
+            this.buttonShowRecent.TabIndex = 6;
+            this.buttonShowRecent.Text = "Trades";
+            this.buttonShowRecent.UseVisualStyleBackColor = true;
+            this.buttonShowRecent.Click += new System.EventHandler(this.buttonShowRecent_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1377, 670);
+            this.Controls.Add(this.buttonShowRecent);
             this.Controls.Add(this.buttonSell);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
@@ -120,5 +132,6 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button buttonSell;
+        private System.Windows.Forms.Button buttonShowRecent;
     }
 }

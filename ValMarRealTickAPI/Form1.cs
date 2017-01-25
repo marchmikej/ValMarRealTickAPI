@@ -169,5 +169,15 @@ namespace ValMarRealTickAPI
         {
             Variables.stocks[stockIndex].setManualSell();
         }
+
+        private void buttonShowRecent_Click(object sender, EventArgs e)
+        {
+            List<Trade> recentTrades = Variables.stocks[stockIndex].tradesOneMinute;
+            Log("Recent Trades");
+            for (int i = 0; i < recentTrades.Count; i++)
+            {
+                Log("Amount {0} Vol {1} Time{2}", recentTrades[i].amount, recentTrades[i].volume, recentTrades[i].time);
+            }
+        }
     }
 }

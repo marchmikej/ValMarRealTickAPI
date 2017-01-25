@@ -20,7 +20,7 @@ namespace ValMarRealTickAPI
         private bool initialized;
         private DateTime purchaseTime;
         private List<Trade> recentTrades;
-        private List<Trade> tradesOneMinute;
+        public List<Trade> tradesOneMinute;
         private bool buy;  //When buy is true then the main program will purchase the stock
         private bool sell;  //When sell is true then the main program will sell the stock
         private int trendDownSeconds;
@@ -43,8 +43,10 @@ namespace ValMarRealTickAPI
         public int startMinute;
         public int endHour;
         public int endMinute;
+        private double purchasePrice;
+        private bool sellPurchasePrice;
 
-        public Stock(string name, string exchange, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute, int dollarAmountToPurchase, string route)
+        public Stock(string name, string exchange, int tradesPerWeek, int weeksLookBack, int maxSecondsToHold, double stopGap, double stopGap2, int secondsStopGap1, int recentTradesToKeep, int trendDownSeconds, int waitAfterSellSeconds, int startHour, int startMinute, int endHour, int endMinute, int dollarAmountToPurchase, string route, bool sellPurchasePrice)
         {
             this.name = name;
             this.exchange = exchange;
@@ -61,6 +63,7 @@ namespace ValMarRealTickAPI
             showBids = false;
             showTrades = false;
             averageVolumeHistory = 0;
+            purchasePrice = 0;
 
             this.tradesPerWeek = tradesPerWeek;
             this.weeksLookBack = weeksLookBack;
@@ -76,6 +79,7 @@ namespace ValMarRealTickAPI
             this.startHour = startHour;
             this.startMinute = startMinute;
             this.dollarAmountToPurchase = dollarAmountToPurchase;
+            this.sellPurchasePrice = sellPurchasePrice;
 
             // Initializing below times minus the buffer so they will not wait to buy at initial launch
             lastSellTime = DateTime.Now.AddSeconds(waitAfterSellSeconds * -1);
@@ -161,17 +165,17 @@ namespace ValMarRealTickAPI
             int volumeOneMinute = 0;
             int volumeTwoMinute = 0;
             int volumeThreeMinute = 0;            
-            tradesOneMinute.Insert(0, newTrade);
+            tradesOneMinute.Add(newTrade);
 
-            for(int i=0;i>tradesOneMinute.Count;i++)
+            for(int i=0;i<tradesOneMinute.Count;i++)
             {
-                if((DateTime.Now - tradesOneMinute[i].time).TotalSeconds < 60)
+                if((newTrade.time - tradesOneMinute[i].time).TotalSeconds < 60)
                 {
                     volumeOneMinute += tradesOneMinute[i].volume;
-                } else if ((DateTime.Now - tradesOneMinute[i].time).TotalSeconds < 120)
+                } else if ((newTrade.time - tradesOneMinute[i].time).TotalSeconds < 120)
                 {
                     volumeTwoMinute += tradesOneMinute[i].volume;
-                } else if ((DateTime.Now - tradesOneMinute[i].time).TotalSeconds < 180)
+                } else if ((newTrade.time - tradesOneMinute[i].time).TotalSeconds < 180)
                 {
                     volumeThreeMinute += tradesOneMinute[i].volume;
                 } else
@@ -186,8 +190,9 @@ namespace ValMarRealTickAPI
 
             int totalVolumeChange = calculateVolumeChange - averageVolumeHistory;
             writeToCSV("VOLUMECHANGELAST3MINFROMSTOCK", totalVolumeChange, getTradeVol(), DateTime.Now);
-            if (getTradeVol() < totalVolumeChange) {
-                //This sets the current stock to a buy status which will be executed above
+
+            if ((getTradeVol() < totalVolumeChange) && volumesPurchased == 0) {
+                //This sets the current stock to a buy status which will be executed in program
                 //because I was unsure of the best way to pass app to the purchase method.
                 setBuy();
             }
@@ -358,9 +363,12 @@ namespace ValMarRealTickAPI
             if(buyOrSell=="Buy")
             {
                 volumesPurchased = volumesPurchased + volumeTraded;
+                purchasePrice = pricedTraded;
+
             } else if(buyOrSell=="Sell")
             {
                 volumesPurchased = volumesPurchased - volumeTraded;
+                purchasePrice = 0;
             }
         }
 
@@ -427,8 +435,12 @@ namespace ValMarRealTickAPI
                 if(getCurrentStopGapPrice() > newTradePrice)
                 {
                     sell = true;
-                    writeToFile("Selling Stock");
-                    writeToFile("Previous trade price: " + recentTrades[recentTrades.Count - 1].amount);
+                    writeToCSV("PRICEBELOWSTOPGAP", 0, 0, DateTime.Now);
+                }
+                if (sellPurchasePrice && newTradePrice < purchasePrice)
+                {
+                    sell = true;
+                    writeToCSV("PRICEBELOWPURCHASE", 0, 0, DateTime.Now);
                 }
             }
         }

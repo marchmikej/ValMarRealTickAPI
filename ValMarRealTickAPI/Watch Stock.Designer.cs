@@ -68,6 +68,7 @@
             this.checkDemo = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.textRoute = new System.Windows.Forms.TextBox();
+            this.checkPurchasePriceSell = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // textSymbol
@@ -412,11 +413,22 @@
             this.textRoute.Size = new System.Drawing.Size(221, 26);
             this.textRoute.TabIndex = 42;
             // 
+            // checkPurchasePriceSell
+            // 
+            this.checkPurchasePriceSell.AutoSize = true;
+            this.checkPurchasePriceSell.Location = new System.Drawing.Point(1059, 520);
+            this.checkPurchasePriceSell.Name = "checkPurchasePriceSell";
+            this.checkPurchasePriceSell.Size = new System.Drawing.Size(171, 24);
+            this.checkPurchasePriceSell.TabIndex = 43;
+            this.checkPurchasePriceSell.Text = "Purchase Price Sell";
+            this.checkPurchasePriceSell.UseVisualStyleBackColor = true;
+            // 
             // Watch_Stock
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1478, 682);
+            this.Controls.Add(this.checkPurchasePriceSell);
             this.Controls.Add(this.textRoute);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.checkDemo);
@@ -507,5 +519,6 @@
         private System.Windows.Forms.CheckBox checkDemo;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox textRoute;
+        private System.Windows.Forms.CheckBox checkPurchasePriceSell;
     }
 }

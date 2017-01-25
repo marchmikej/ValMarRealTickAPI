@@ -325,6 +325,7 @@ namespace ValMarRealTickAPI
 
                         Variables.currentStock().writeToCSV("VOLUMECHANGELAST3MIN", totalVolumeChange, Variables.currentStock().getTradeVol(), DateTime.Now);
                         WriteLine("Current: {0} at {1} volume change over 3 minutes, buy is {2}", Variables.currentStock().name, totalVolumeChange, Variables.currentStock().getTradeVol());
+                        /*
                         if (Variables.currentStock().getTradeVol() < totalVolumeChange)
                         {
                             //This sets the current stock to a buy status which will be executed above
@@ -341,6 +342,7 @@ namespace ValMarRealTickAPI
                         }
                         // Add this volume to list if in the top trade volumes
                         Variables.currentStock().addVolumeToList(totalVolumeChange);
+                        */
                     }
                 }
             }
