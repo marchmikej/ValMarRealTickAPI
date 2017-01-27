@@ -145,8 +145,15 @@ namespace ValMarRealTickAPI
                 {
                     while (csvLines.Count > 0)
                     {
-                        CSVLine newLine = csvLines.Dequeue();
-                        sw.WriteLine(newLine.currentTime + "," + newLine.timeStamp + "," + newLine.action + "," + newLine.volume + "," + newLine.price);
+                        try
+                        {
+                            CSVLine newLine = csvLines.Dequeue();
+                            sw.WriteLine(newLine.currentTime + "," + newLine.timeStamp + "," + newLine.action + "," + newLine.volume + "," + newLine.price);
+                        }
+                        catch(Exception)
+                        {
+                            Helper.WriteLine("A write to CSV failed!!!!");
+                        }
                     }
                 }
             }
